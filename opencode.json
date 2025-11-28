@@ -13,7 +13,7 @@
         "todoread": true,
         "webfetch": true
     },
-    "permissions": {
+    "permission": {
         "bash": "ask",
         "doom_loop": "ask"
     },
