@@ -16,9 +16,17 @@ const axios = new Axios({
 });
 
 const updateAppStatus = async (status: "Errored" | "Active" | "Pending") => {
-  await axios.put("/", {
-    status,
-  });
+  await axios.put(
+    "/",
+    JSON.stringify({
+      status,
+    }),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 };
 
 export const DevServerHMRPlugin: Plugin = async ({ client, $ }) => {
