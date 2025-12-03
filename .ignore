@@ -1,6 +1,5 @@
 .env
 .env.*
 QUERY_BUILDER.md
-AGENTS.md
 .opencode
 .ignore
