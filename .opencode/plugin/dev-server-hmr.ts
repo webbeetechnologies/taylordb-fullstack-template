@@ -48,7 +48,7 @@ export const DevServerHMRPlugin: Plugin = async ({ client, $ }) => {
         return;
       }
 
-      const result = await $`pnpm build`.catch((error) => error);
+      const result = await $`pnpm build`.quiet().catch((error) => error);
 
       if (result.exitCode !== 0) {
         if (!client.session["tries"]) {
@@ -59,8 +59,6 @@ export const DevServerHMRPlugin: Plugin = async ({ client, $ }) => {
 
         if (client.session["tries"] > 3) {
           await updateAppStatus("Errored");
-
-          console.log("CHANGE STATUS TO ERRORED");
 
           return;
         }
@@ -87,8 +85,24 @@ export const DevServerHMRPlugin: Plugin = async ({ client, $ }) => {
           .map(Number);
         const newVersion = `${major}.${minor}.${patch + 1}`;
 
-        const commitMessage =
-          session.data?.title ?? `feat: release version v${newVersion}`;
+        const messages = await client.session.messages({
+          path: { id: event.properties.sessionID },
+        });
+
+        if (!messages.data) {
+          return;
+        }
+
+        const title = messages.data
+          .reverse()
+          .find(
+            (message) =>
+              message.info.role === "user" &&
+              message.info.summary &&
+              message.info.summary.title
+          )?.info.summary?.["title"];
+
+        const commitMessage = title ?? `feat: release version v${newVersion}`;
 
         packageJson.version = newVersion;
 
@@ -97,12 +111,12 @@ export const DevServerHMRPlugin: Plugin = async ({ client, $ }) => {
           JSON.stringify(packageJson, null, 2)
         );
 
-        await $`git config user.name "Taylor AI"`;
-        await $`git config user.email "ai@taylordb.io"`;
-        await $`git add .`;
-        await $`git commit -m ${commitMessage}`;
-        await $`git tag v${newVersion}`;
-        await $`git push origin main --tags`;
+        await $`git config user.name "Taylor AI"`.quiet();
+        await $`git config user.email "ai@taylordb.io"`.quiet();
+        await $`git add .`.quiet();
+        await $`git commit -m ${commitMessage}`.quiet();
+        await $`git tag v${newVersion}`.quiet();
+        await $`git push origin main --tags`.quiet();
       } catch (error) {
         console.error("Failed to push to git", error);
       }
