@@ -7,6 +7,10 @@
     "module": "ESNext",
     "types": ["vite/client", "node"],
     "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -25,5 +29,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],
-  "exclude": ["src/lib"]
+  "exclude": []
 }

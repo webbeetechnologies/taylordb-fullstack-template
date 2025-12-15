@@ -21,6 +21,8 @@ Upon initialization, this template includes a `/src/lib` directory containing tw
 
 **Your first action must be to read both of these files.** This will give you a complete understanding of the database structure, tables, and data types you will be working with.
 
+> Note: If `src/lib/taylordb.client.ts` or `src/lib/taylordb.types.ts` are missing in the repo, pause and ask the user to provide/regenerate them. Do not proceed with mock data.
+
 ### 2. Integrate Directly with TaylorDB
 
 You must use the provided TaylorDB client for all data operations. **Do not use mock data under any circumstances.** The UI you build should be fully functional and connected to the live database from the start.
@@ -57,6 +59,8 @@ The development server is already running. You do not need to start it. Focus on
 - Handle errors explicitly. **Never ignore TypeScript or lint errors.**
 - Formatting: 2-space indent, single quotes, semicolons required.
 - Remove unused code/comments. Comments must be concise and relevant.
-- Use TaylorDB query builder with generated types from `src/lib/taylordb.types.ts`; **never modify generated schema files.**
+- Use TaylorDB query builder with generated types from `../src/lib/taylordb.types.ts`; **never modify generated schema files.**
+- shadcn/ui is initialized with common components (button, card, input, label, textarea, select, tabs, alert). Add more via `pnpm dlx shadcn@latest add <component>`; files go in `../src/components/ui/`.
+- Prefer shadcn/ui components and Tailwind tokens for UI. Only hand-roll a component if shadcn does not offer an equivalent; follow shadcn structure (component in `../src/components/ui/`, styling via Tailwind classes, `cn` helper, and theme tokens defined in `../src/index.css`).
 
 _No Cursor or Copilot rules found. If added, include their guidelines here._

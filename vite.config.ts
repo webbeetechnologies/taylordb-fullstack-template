@@ -1,4 +1,6 @@
+import path from "node:path";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { PassThrough } from "stream";
 import { defineConfig, type ViteDevServer } from "vite";
 
@@ -32,6 +34,8 @@ Object.keys(originalConsole).forEach((level) => {
 
 export default defineConfig({
   plugins: [
+    // @ts-expect-error - Tailwind plugin is causing type errors with vite v7. This is a known issue.
+    tailwindcss(),
     react(),
     {
       name: "sse-plugin",
@@ -61,6 +65,11 @@ export default defineConfig({
       },
     },
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
+  },
   server: {
     allowedHosts: [".develop.taylordb.ai", "localhost", "127.0.0.1"],
     host: true,

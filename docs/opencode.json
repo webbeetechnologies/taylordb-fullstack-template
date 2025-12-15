@@ -1,8 +1,8 @@
 {
     "$schema": "https://opencode.ai/config.json",
     "instructions": [
-        "src/lib/taylordb.types.ts",
-        "src/lib/taylordb-client.ts",
+        "../src/lib/taylordb.types.ts",
+        "../src/lib/taylordb-client.ts",
         "QUERY_BUILDER.md"
     ]
 }
