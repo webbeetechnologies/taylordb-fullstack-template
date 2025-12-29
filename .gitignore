@@ -27,4 +27,3 @@ dist-ssr
 .aider*
 
 src/lib/taylordb.types.ts
-src/lib/taylordb.client.ts
