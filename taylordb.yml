@@ -18,6 +18,12 @@ services:
     dev:
       command: pnpm dev
       port: 3000
+      env:
+        vars:
+          TAYLORDB_BASE_URL: vars.TAYLORDB_BASE_URL
+          TAYLORDB_API_KEY: secrets.TAYLORDB_API_TOKEN
+          TAYLORDB_BASE_ID: vars.TAYLORDB_BASE_ID
+          FRONTEND_URL: routing.client.url
   
   client:
     workDir: apps/client
@@ -27,6 +33,9 @@ services:
     dev:
       command: pnpm dev
       port: 5173
+      env:
+        vars:
+          VITE_TRPC_URL: routing.server.url
 
 taylordb:
   types:
@@ -41,3 +50,5 @@ preview:
 routing:
   - path: /api
     service: server
+  - path: /
+    service: client
