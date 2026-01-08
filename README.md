@@ -1,305 +1,219 @@
-# TaylorDB + tRPC Full-Stack Monorepo
+# TaylorDB Full-Stack Template
 
-A production-ready pnpm monorepo combining React frontend and Express backend with tRPC for type-safe API communication. Built for AI-assisted development platforms.
+A production-ready template for building modern, type-safe web applications with TaylorDB. Designed for AI-assisted development with comprehensive documentation and best practices built-in.
 
-## 📦 Monorepo Structure
+## 🎯 What This Template Provides
 
-```
-taylordb-clientserver-template/
-├── pnpm-workspace.yaml          # Workspace configuration
-├── package.json                  # @repo/frontend (root)
-├── server/
-│   ├── package.json             # @repo/server
-│   ├── index.ts                 # Express + tRPC server
-│   ├── router.ts                # tRPC procedures
-│   ├── trpc.ts                  # tRPC configuration
-│   └── taylordb/
-│       ├── types.ts             # Auto-generated TaylorDB types
-│       └── query-builder.ts     # TaylorDB CRUD operations
-├── src/                         # React frontend
-└── ...
-```
+- **Full-Stack Setup**: React frontend + Node.js backend in a monorepo
+- **Type Safety**: End-to-end TypeScript from database to UI
+- **Modern UI**: shadcn/ui components with Tailwind CSS
+- **Type-Safe API**: tRPC for seamless client-server communication
+- **TaylorDB Integration**: Query builder with generated types
+- **AI-Ready**: Comprehensive documentation for AI-assisted development
+
+---
 
 ## 🚀 Quick Start
 
+### 1. Install Dependencies
+
 ```bash
-# Install all workspace dependencies
 pnpm install
-
-# Run both frontend and backend
-pnpm dev:full
-
-# Or run separately
-pnpm dev           # Frontend only (port 5173)
-pnpm dev:server    # Backend only (port 3001)
 ```
 
-Visit:
+---
 
-- **Frontend**: http://localhost:5173
-- **Backend**: http://localhost:3001
-- **Demo Page**: http://localhost:5173/trpc-demo
+## 📁 Project Structure
 
-## 📚 Workspaces
-
-### @repo/frontend (Root)
-
-The React + Vite frontend application
-
-**Location**: `/` (root directory)
-
-**Tech Stack**:
-
-- React 19 with TypeScript
-- Vite 7 for bundling
-- TailwindCSS 4 for styling
-- shadcn/ui components
-- React Router v6
-- tRPC React Query client
-
-**Scripts**:
-
-```bash
-pnpm dev              # Start dev server
-pnpm build            # Build for production
-pnpm lint             # Run ESLint
+```
+taylordb-fullstack-template/
+├── apps/
+│   ├── client/                 # React frontend (Vite)
+│   │   ├── src/
+│   │   │   ├── components/ui/  # shadcn/ui components
+│   │   │   ├── pages/          # Route pages
+│   │   │   ├── lib/            # Utilities & tRPC client
+│   │   │   └── index.css       # Design tokens
+│   │   └── package.json
+│   │
+│   └── server/                 # Node.js backend
+│       ├── taylordb/
+│       │   ├── types.ts        # Generated schema types
+│       │   └── query-builder.ts # Database operations
+│       ├── router.ts           # tRPC API routes
+│       └── package.json
+│
+├── docs/                       # Comprehensive guides
+│   ├── TAYLORDB_QUERY_REFERENCE.md
+│   └── SHADCN_COMPONENTS_GUIDE.md
+│
+├── AGENTS.md                   # AI agent instructions
+└── taylordb.yml                # Deployment config
 ```
 
-### @repo/server
+---
 
-The Express + tRPC backend API
+## 📚 Documentation
 
-**Location**: `/server`
+This template includes comprehensive documentation for both human and AI developers:
 
-**Tech Stack**:
+### For AI Agents
 
-- Express 5 web server
-- tRPC 11 for type-safe APIs
-- TaylorDB query builder
-- Zod for validation
-- TypeScript 5
+- **[AGENTS.md](./AGENTS.md)**: Complete AI agent instructions
+  - Development workflow (Planning → Execution → Verification)
+  - Design guidelines for modern UIs
+  - Code organization best practices
+  - Type safety patterns
+  - Example implementations
 
-**Scripts**:
+### For Developers
 
-```bash
-pnpm --filter @repo/server dev      # Start with hot reload
-pnpm --filter @repo/server build    # Build TypeScript
-pnpm --filter @repo/server start    # Run production build
-```
+- **[docs/TAYLORDB_QUERY_REFERENCE.md](./docs/TAYLORDB_QUERY_REFERENCE.md)**: Query builder reference
 
-## 🛠️ Available Scripts
+  - All CRUD operations with examples
+  - Field type handling
+  - Advanced patterns (aggregations, pagination)
+  - Common pitfalls and solutions
 
-### Root Commands (run from anywhere)
+- **[docs/SHADCN_COMPONENTS_GUIDE.md](./docs/SHADCN_COMPONENTS_GUIDE.md)**: UI component guide
+  - Dashboard patterns
+  - Form examples
+  - Data tables
+  - Responsive design tips
 
-```bash
-# Development
-pnpm dev:full        # Run both workspaces concurrently
-pnpm dev             # Frontend only
-pnpm dev:server      # Backend only
+---
 
-# Building
-pnpm build           # Build frontend
-pnpm build:server    # Build backend
-pnpm build:all       # Build both
+## 🎨 Tech Stack
 
-# Other
-pnpm lint            # Lint all code
-pnpm generate:schema # Generate TaylorDB types
-```
+### Frontend
 
-### Workspace-Specific Commands
+- **React 19** with TypeScript
+- **Vite 7** for fast builds
+- **TailwindCSS 4** for styling
+- **shadcn/ui** for UI components
+- **React Router v6** for routing
+- **tRPC React Query** for API calls
 
-```bash
-# Run command in specific workspace
-pnpm --filter @repo/frontend <command>
-pnpm --filter @repo/server <command>
+### Backend
 
-# Examples
-pnpm --filter @repo/server dev
-pnpm --filter @repo/frontend build
-```
+- **Node.js** with TypeScript
+- **Express 5** web server
+- **tRPC 11** for type-safe APIs
+- **Zod** for validation
+- **TaylorDB Query Builder** for database
 
-## 🔧 Configuration Files
+---
 
-### pnpm-workspace.yaml
+## 🎯 Key Features
 
-Defines workspace packages:
-
-```yaml
-packages:
-  - "server"
-  - "."
-```
-
-### Package Names
-
-- Frontend: `@repo/frontend`
-- Backend: `@repo/server`
-
-All packages are marked as `private: true` (not published to npm)
-
-## 📡 API Communication
-
-### tRPC Router Export
-
-The backend exports its router type from `server/router.ts`:
+### ✅ Full Type Safety
 
 ```typescript
-export type AppRouter = typeof appRouter;
+// Backend defines the API
+export const appRouter = router({
+  users: {
+    getById: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => { ... }),
+  },
+});
+
+// Frontend gets full autocomplete
+const { data: user } = trpc.users.getById.useQuery({ id: 1 });
+//    ^? User | undefined (fully typed!)
 ```
 
-### Frontend tRPC Client
+### ✅ Modern UI Components
 
-The frontend imports the type for end-to-end type safety:
+All components from shadcn/ui with:
+
+- Full dark mode support
+- Responsive design
+- Accessible by default
+- Customizable with Tailwind
+
+### ✅ Database Integration
+
+Type-safe queries with TaylorDB:
 
 ```typescript
-import type { AppRouter } from "../../server/router";
-export const trpc = createTRPCReact<AppRouter>();
-```
-
-**Note**: This works because both packages are in the same monorepo, allowing direct TypeScript imports without shared packages.
-
-## 🗄️ TaylorDB Integration
-
-### Setup
-
-1. Copy `.env.example` to `.env`
-2. Add your TaylorDB credentials:
-   ```bash
-   TAYLORDB_BASE_URL=your_base_url
-   TAYLORDB_BASE_ID=your_base_id
-   TAYLORDB_API_KEY=your_api_key
-   ```
-3. Generate types: `pnpm generate:schema`
-
-### CRUD Operations
-
-50+ type-safe procedures available:
-
-- **Weight Tracking**: Full CRUD + statistics
-- **Goals Management**: Create, read, update, delete
-- **Strength Workouts**: Exercise logging
-- **Cardio Exercises**: Duration, distance, speed tracking
-- **Calories/Nutrition**: Daily totals and aggregations
-- **Settings**: Key-value configuration
-
-See [TAYLORDB_INTEGRATION.md](file:///Users/thetaung/Desktop/taylordb-clientserver-template/TAYLORDB_INTEGRATION.md) for detailed examples.
-
-## 🏗️ Monorepo Benefits
-
-### For This Project
-
-✅ **Shared Types**: Frontend and backend share TypeScript types directly  
-✅ **Single Repository**: One git repo, one pnpm-lock.yaml  
-✅ **Coordinated Builds**: Build both projects together  
-✅ **Simplified Setup**: One `pnpm install` for everything  
-✅ **Workspace Commands**: Target specific packages easily
-
-### Compared to Separate Repos
-
-- ⚡ Faster development (no publishing to npm for type updates)
-- 🔒 Type safety guaranteed at development time
-- 📝 Simpler dependency management
-- 🔄 Atomic commits across frontend and backend
-
-## 📦 Dependency Management
-
-### Installing Dependencies
-
-**For frontend**:
-
-```bash
-# From root
-pnpm add <package>
-
-# Or explicitly
-pnpm --filter @repo/frontend add <package>
-```
-
-**For backend**:
-
-```bash
-pnpm --filter @repo/server add <package>
-```
-
-**For both**:
-
-```bash
-pnpm add <package> -w  # Add to root workspace
-```
-
-### Workspace Dependencies
-
-Workspaces can depend on each other using `workspace:*`:
-
-```json
-{
-  "dependencies": {
-    "@repo/shared": "workspace:*"
-  }
+// Auto-generated types from your schema
+export async function getAllUsers() {
+  return await queryBuilder
+    .selectFrom("users")
+    .select(["id", "name", "email"])
+    .execute();
 }
 ```
 
+---
+
+## 🤖 AI-Assisted Development
+
+This template is optimized for AI-assisted development:
+
+1. **Read AGENTS.md**: Comprehensive instructions for AI agents
+2. **Follow the workflow**: Planning → Execution → Verification
+3. **Use type safety**: All examples use strict TypeScript
+4. **Reference docs**: Query patterns, component examples, best practices
+
+The AI agent will:
+
+- Understand your TaylorDB schema
+- Design appropriate color schemes
+- Build type-safe CRUD operations
+- Create modern, responsive UIs
+- Follow best practices automatically
+
+---
+
 ## 🚢 Deployment
 
-### Option 1: Deploy Separately
+This template is designed to deploy to TaylorDB's platform using the included `taylordb.yml` configuration.
 
-- Frontend → Vercel/Netlify (static site from `dist/`)
-- Backend → Railway/Render/Fly.io (Node.js app)
-
-Build commands:
-
-```bash
-pnpm build           # Frontend
-pnpm build:server    # Backend
-```
-
-### Option 2: Deploy Together
-
-Serve frontend from backend:
-
-```bash
-pnpm build:all       # Build both
-# Configure Express to serve frontend static files
-```
-
-### Environment Variables
-
-Set these in your deployment platform:
+**Environment Variables Required:**
 
 - `TAYLORDB_BASE_URL`
-- `TAYLORDB_BASE_ID`
-- `TAYLORDB_API_KEY`
-- `FRONTEND_URL` (for CORS)
-- `VITE_TRPC_URL` (frontend)
+- `TAYLORDB_API_TOKEN`
+- `TAYLORDB_SERVER_ID`
 
-## 🎯 Next Steps
+---
 
-1. **Add Shared Package** (optional):
+## 📖 Usage Examples
 
-   ```bash
-   mkdir packages/shared
-   # Create package.json for shared utilities/types
-   ```
+### 1. Add a New Feature
 
-2. **Add Tests**:
+1. Create database functions in `apps/server/taylordb/query-builder.ts`
+2. Expose via tRPC in `apps/server/router.ts`
+3. Build UI in `apps/client/src/pages/`
+4. Add route in `apps/client/src/main.tsx`
 
-   ```bash
-   pnpm --filter @repo/server add -D vitest
-   pnpm --filter @repo/frontend add -D vitest
-   ```
+### 2. Add shadcn/ui Component
 
-3. **CI/CD**:
-   - Use `pnpm install --frozen-lockfile` in CI
-   - Run `pnpm build:all` for deployment
-   - Cache `node_modules` and `.pnpm-store`
+```bash
+pnpm dlx shadcn@latest add <component-name>
+```
 
-## 📚 Learn More
+Example:
 
-- [pnpm Workspaces](https://pnpm.io/workspaces)
-- [tRPC Documentation](https://trpc.io)
-- [TaylorDB](https://taylordb.io)
-- [Monorepo Handbook](https://monorepo.tools)
+```bash
+pnpm dlx shadcn@latest add table dialog toast
+```
+
+### 3. Customize Design
+
+Edit `apps/client/src/index.css` to change colors, fonts, and spacing.
+
+---
+
+## 🔗 Resources
+
+- **shadcn/ui**: https://ui.shadcn.com/
+- **tRPC**: https://trpc.io/
+- **TaylorDB**: https://taylordb.ai/
+- **Tailwind CSS**: https://tailwindcss.com/
+
+---
 
 ## 📄 License
 
@@ -307,4 +221,4 @@ MIT - Use freely for any project!
 
 ---
 
-**Built with ❤️ for AI-assisted development platforms**
+**Built for modern, type-safe full-stack development with AI assistance** ✨

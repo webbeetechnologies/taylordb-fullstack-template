@@ -1,13 +1,13 @@
 import pkg from "@taylordb/query-builder";
 const { createQueryBuilder } = pkg;
-import type {
-  StrengthExerciseOptions,
-  CaloriesTimeOfDayOptions,
-  CardioExerciseOptions,
-  CaloriesUnitOptions,
-} from "./types.js";
 import type { TaylorDatabase } from "./types.js";
 
+/**
+ * TaylorDB Query Builder Instance
+ *
+ * This is the main query builder instance configured with your TaylorDB credentials.
+ * Use this to perform all database operations in a type-safe manner.
+ */
 export const queryBuilder = createQueryBuilder<TaylorDatabase>({
   baseUrl: process.env.TAYLORDB_BASE_URL!,
   baseId: process.env.TAYLORDB_SERVER_ID!,
@@ -15,8 +15,14 @@ export const queryBuilder = createQueryBuilder<TaylorDatabase>({
 });
 
 /**
- * Sample CRUD Operations for TaylorDB
- * These demonstrate how to interact with the database using the query builder
+ * ============================================================================
+ * Example Query Functions
+ * ============================================================================
+ *
+ * Below are example patterns for common database operations.
+ * Replace these with your own functions based on your actual schema.
+ *
+ * For comprehensive examples, see: /docs/TAYLORDB_QUERY_REFERENCE.md
  */
 
 // ============================================================================
@@ -24,511 +30,291 @@ export const queryBuilder = createQueryBuilder<TaylorDatabase>({
 // ============================================================================
 
 /**
- * Get all weight records
+ * Example: Get all records from a table
+ *
+ * @example
+ * export async function getAllUsers() {
+ *   return await queryBuilder
+ *     .selectFrom("users")
+ *     .select(["id", "name", "email", "createdAt"])
+ *     .orderBy("createdAt", "desc")
+ *     .execute();
+ * }
  */
-export async function getAllWeightRecords() {
-  return await queryBuilder
-    .selectFrom("weight")
-    .select(["id", "date", "weight", "name", "createdAt", "updatedAt"])
-    .orderBy("date", "desc")
-    .execute();
-}
 
 /**
- * Get weight records for a specific date range
+ * Example: Get a single record by ID
+ *
+ * @example
+ * export async function getUserById(id: number) {
+ *   return await queryBuilder
+ *     .selectFrom("users")
+ *     .where("id", "=", id)
+ *     .executeTakeFirst();
+ * }
  */
-export async function getWeightRecordsByDateRange(
-  startDate: string,
-  endDate: string
-) {
-  return await queryBuilder
-    .selectFrom("weight")
-    .where("date", ">=", ["exactDay", startDate])
-    .where("date", "<=", ["exactDay", endDate])
-    .orderBy("date", "asc")
-    .execute();
-}
 
 /**
- * Get a single weight record by ID
+ * Example: Get records with filtering
+ *
+ * @example
+ * export async function getActiveUsers() {
+ *   return await queryBuilder
+ *     .selectFrom("users")
+ *     .where("status", "=", "active")
+ *     .orderBy("name", "asc")
+ *     .execute();
+ * }
  */
-export async function getWeightRecordById(id: number) {
-  return await queryBuilder
-    .selectFrom("weight")
-    .where("id", "=", id)
-    .executeTakeFirst();
-}
 
 /**
- * Get all goals
+ * Example: Get records with date range filtering
+ *
+ * @example
+ * export async function getRecordsInDateRange(startDate: string, endDate: string) {
+ *   return await queryBuilder
+ *     .selectFrom("records")
+ *     .where("date", ">=", ["exactDay", startDate])
+ *     .where("date", "<=", ["exactDay", endDate])
+ *     .orderBy("date", "asc")
+ *     .execute();
+ * }
  */
-export async function getAllGoals() {
-  return await queryBuilder
-    .selectFrom("goals")
-    .select(["id", "name", "value", "description", "createdAt", "updatedAt"])
-    .execute();
-}
-
-/**
- * Get strength workout records with optional filtering by exercise
- */
-export async function getStrengthWorkouts(
-  exercise?: (typeof StrengthExerciseOptions)[number]
-) {
-  let query = queryBuilder
-    .selectFrom("strength")
-    .select(["id", "date", "exercise", "reps", "weight", "name"])
-    .orderBy("date", "desc");
-
-  if (exercise) {
-    query = query.where("exercise", "=", exercise);
-  }
-
-  return await query.execute();
-}
-
-/**
- * Get cardio exercises
- */
-export async function getCardioExercises() {
-  return await queryBuilder
-    .selectFrom("cardio")
-    .select(["id", "date", "exercise", "duration", "distance", "speed", "name"])
-    .orderBy("date", "desc")
-    .execute();
-}
-
-/**
- * Get calories by time of day
- */
-export async function getCaloriesByTimeOfDay(
-  timeOfDay: (typeof CaloriesTimeOfDayOptions)[number]
-) {
-  return await queryBuilder
-    .selectFrom("calories")
-    .select([
-      "id",
-      "date",
-      "timeOfDay",
-      "mealName",
-      "totalCalories",
-      "totalProtein",
-      "totalCarbs",
-      "totalFats",
-    ])
-    .where("timeOfDay", "=", timeOfDay)
-    .execute();
-}
-
-/**
- * Get settings by name
- */
-export async function getSettingByName(name: string) {
-  return await queryBuilder
-    .selectFrom("settings")
-    .where("name", "=", name)
-    .execute();
-}
 
 // ============================================================================
 // CREATE Operations (Insert)
 // ============================================================================
 
 /**
- * Add a new weight record
+ * Example: Insert a new record
+ *
+ * @example
+ * export async function createUser(data: { name: string; email: string }) {
+ *   return await queryBuilder
+ *     .insertInto("users")
+ *     .values({
+ *       name: data.name,
+ *       email: data.email,
+ *       status: "active",
+ *     })
+ *     .executeTakeFirst();
+ * }
  */
-export async function createWeightRecord(data: {
-  date: string;
-  weight: number;
-  name?: string;
-}) {
-  return await queryBuilder
-    .insertInto("weight")
-    .values({
-      date: data.date,
-      weight: data.weight,
-      name: data.name || "",
-    })
-    .executeTakeFirst();
-}
 
 /**
- * Create a new goal
+ * Example: Insert with single-select field
+ *
+ * Note: Single-select fields must be wrapped in an array
+ *
+ * @example
+ * export async function createTask(data: { title: string; priority: "low" | "medium" | "high" }) {
+ *   return await queryBuilder
+ *     .insertInto("tasks")
+ *     .values({
+ *       title: data.title,
+ *       priority: [data.priority], // Wrap in array for single-select
+ *     })
+ *     .executeTakeFirst();
+ * }
  */
-export async function createGoal(data: {
-  name: string;
-  value: string;
-  description?: string;
-}) {
-  return await queryBuilder
-    .insertInto("goals")
-    .values({
-      name: data.name,
-      value: data.value,
-      description: data.description || "",
-    })
-    .executeTakeFirst();
-}
 
 /**
- * Log a strength workout
+ * Example: Insert with computed fields
+ *
+ * @example
+ * export async function createOrder(data: { quantity: number; pricePerUnit: number }) {
+ *   const totalPrice = data.quantity * data.pricePerUnit;
+ *
+ *   return await queryBuilder
+ *     .insertInto("orders")
+ *     .values({
+ *       quantity: data.quantity,
+ *       pricePerUnit: data.pricePerUnit,
+ *       totalPrice: totalPrice,
+ *     })
+ *     .executeTakeFirst();
+ * }
  */
-export async function createStrengthWorkout(data: {
-  exercise: (typeof StrengthExerciseOptions)[number];
-  reps: number;
-  weight: number;
-  date: string;
-  name?: string;
-}) {
-  return await queryBuilder
-    .insertInto("strength")
-    .values({
-      exercise: [data.exercise],
-      reps: data.reps,
-      weight: data.weight,
-      date: data.date,
-      name: data.name || "",
-    })
-    .executeTakeFirst();
-}
-
-/**
- * Log a cardio exercise
- */
-export async function createCardioExercise(data: {
-  exercise: (typeof CardioExerciseOptions)[number];
-  duration: number;
-  distance: number;
-  date: string;
-  name?: string;
-}) {
-  const speed = data.distance / (data.duration / 60); // Calculate speed (km/h)
-
-  return await queryBuilder
-    .insertInto("cardio")
-    .values({
-      exercise: [data.exercise],
-      duration: data.duration,
-      distance: data.distance,
-      speed,
-      date: data.date,
-      name: data.name || "",
-    })
-    .executeTakeFirst();
-}
-
-/**
- * Log calories/meal
- */
-export async function createCalorieEntry(data: {
-  date: string;
-  timeOfDay: (typeof CaloriesTimeOfDayOptions)[number];
-  mealName: string;
-  mealIngredient: string;
-  quantity: number;
-  unit: (typeof CaloriesUnitOptions)[number];
-  totalCalories: number;
-  totalProtein: number;
-  totalCarbs: number;
-  totalFats: number;
-}) {
-  return await queryBuilder
-    .insertInto("calories")
-    .values({
-      date: data.date,
-      timeOfDay: [data.timeOfDay],
-      mealName: data.mealName,
-      mealIngredient: data.mealIngredient,
-      quantity: data.quantity,
-      unit: [data.unit],
-      totalCalories: data.totalCalories,
-      totalProtein: data.totalProtein,
-      totalCarbs: data.totalCarbs,
-      totalFats: data.totalFats,
-      name: "",
-      proteinPer100G: 0,
-      carbsPer100G: 0,
-      fatsPer100G: 0,
-      quantityInGramsmL: 0,
-      quantityInFlOzozlb: 0,
-    })
-    .executeTakeFirst();
-}
-
-/**
- * Create or update a setting
- */
-export async function createSetting(data: {
-  name: string;
-  value: string;
-  description?: string;
-}) {
-  return await queryBuilder
-    .insertInto("settings")
-    .values({
-      name: data.name,
-      value: data.value,
-      description: data.description || "",
-    })
-    .executeTakeFirst();
-}
 
 // ============================================================================
 // UPDATE Operations
 // ============================================================================
 
 /**
- * Update a weight record
+ * Example: Update a record
+ *
+ * @example
+ * export async function updateUser(id: number, data: { name?: string; email?: string }) {
+ *   return await queryBuilder
+ *     .update("users")
+ *     .set(data)
+ *     .where("id", "=", id)
+ *     .execute();
+ * }
  */
-export async function updateWeightRecord(
-  id: number,
-  data: {
-    weight?: number;
-    date?: string;
-    name?: string;
-  }
-) {
-  return await queryBuilder
-    .update("weight")
-    .set(data)
-    .where("id", "=", id)
-    .execute();
-}
 
 /**
- * Update a goal
+ * Example: Update with conditional recalculation
+ *
+ * @example
+ * export async function updateOrder(id: number, data: { quantity?: number; pricePerUnit?: number }) {
+ *   // Fetch current record to compute total
+ *   const currentOrder = await queryBuilder
+ *     .selectFrom("orders")
+ *     .select(["quantity", "pricePerUnit"])
+ *     .where("id", "=", id)
+ *     .executeTakeFirst();
+ *
+ *   if (!currentOrder) {
+ *     throw new Error("Order not found");
+ *   }
+ *
+ *   const newQuantity = data.quantity ?? currentOrder.quantity ?? 0;
+ *   const newPrice = data.pricePerUnit ?? currentOrder.pricePerUnit ?? 0;
+ *   const totalPrice = newQuantity * newPrice;
+ *
+ *   return await queryBuilder
+ *     .update("orders")
+ *     .set({
+ *       ...data,
+ *       totalPrice,
+ *     })
+ *     .where("id", "=", id)
+ *     .execute();
+ * }
  */
-export async function updateGoal(
-  id: number,
-  data: {
-    name?: string;
-    value?: string;
-    description?: string;
-  }
-) {
-  return await queryBuilder
-    .update("goals")
-    .set(data)
-    .where("id", "=", id)
-    .execute();
-}
-
-/**
- * Update a strength workout
- */
-export async function updateStrengthWorkout(
-  id: number,
-  data: {
-    reps?: number;
-    weight?: number;
-    exercise?: (typeof StrengthExerciseOptions)[number];
-    date?: string;
-    name?: string;
-  }
-) {
-  const updateData: Record<string, string | number | string[] | undefined> = {
-    ...data,
-    exercise: data.exercise ? [data.exercise] : undefined,
-  };
-  return await queryBuilder
-    .update("strength")
-    .set(updateData)
-    .where("id", "=", id)
-    .execute();
-}
-
-/**
- * Update a cardio exercise
- */
-export async function updateCardioExercise(
-  id: number,
-  data: {
-    duration?: number;
-    distance?: number;
-    exercise?: (typeof CardioExerciseOptions)[number];
-    date?: string;
-    name?: string;
-  }
-) {
-  const updateData: Record<string, string | number | string[] | undefined> = {
-    ...data,
-    exercise: data.exercise ? [data.exercise] : undefined,
-  };
-
-  // Recalculate speed if duration or distance changed
-  if (data.duration || data.distance) {
-    const record = await queryBuilder
-      .selectFrom("cardio")
-      .select(["duration", "distance"])
-      .where("id", "=", id)
-      .executeTakeFirst();
-
-    if (record) {
-      const newDuration = data.duration ?? record.duration ?? 0;
-      const newDistance = data.distance ?? record.distance ?? 0;
-      updateData.speed = newDistance / (newDuration / 60);
-    }
-  }
-
-  return await queryBuilder
-    .update("cardio")
-    .set(updateData)
-    .where("id", "=", id)
-    .execute();
-}
-
-/**
- * Update a calorie entry
- */
-export async function updateCalorieEntry(
-  id: number,
-  data: {
-    totalCalories?: number;
-    totalProtein?: number;
-    totalCarbs?: number;
-    totalFats?: number;
-    quantity?: number;
-    mealName?: string;
-  }
-) {
-  return await queryBuilder
-    .update("calories")
-    .set(data)
-    .where("id", "=", id)
-    .execute();
-}
-
-/**
- * Update a setting
- */
-export async function updateSetting(
-  id: number,
-  data: {
-    value?: string;
-    description?: string;
-  }
-) {
-  return await queryBuilder
-    .update("settings")
-    .set(data)
-    .where("id", "=", id)
-    .execute();
-}
 
 // ============================================================================
 // DELETE Operations
 // ============================================================================
 
 /**
- * Delete a weight record
+ * Example: Delete a single record
+ *
+ * @example
+ * export async function deleteUser(id: number) {
+ *   return await queryBuilder
+ *     .deleteFrom("users")
+ *     .where("id", "=", id)
+ *     .execute();
+ * }
  */
-export async function deleteWeightRecord(id: number) {
-  return await queryBuilder.deleteFrom("weight").where("id", "=", id).execute();
-}
 
 /**
- * Delete multiple weight records by IDs
+ * Example: Delete multiple records by IDs
+ *
+ * @example
+ * export async function deleteUsers(ids: number[]) {
+ *   return await queryBuilder
+ *     .deleteFrom("users")
+ *     .where("id", "hasAnyOf", ids)
+ *     .execute();
+ * }
  */
-export async function deleteWeightRecords(ids: number[]) {
-  return await queryBuilder
-    .deleteFrom("weight")
-    .where("id", "hasAnyOf", ids)
-    .execute();
-}
 
 /**
- * Delete a goal
+ * Example: Delete with condition
+ *
+ * @example
+ * export async function deleteInactiveUsers() {
+ *   return await queryBuilder
+ *     .deleteFrom("users")
+ *     .where("status", "=", "inactive")
+ *     .execute();
+ * }
  */
-export async function deleteGoal(id: number) {
-  return await queryBuilder.deleteFrom("goals").where("id", "=", id).execute();
-}
-
-/**
- * Delete a strength workout
- */
-export async function deleteStrengthWorkout(id: number) {
-  return await queryBuilder
-    .deleteFrom("strength")
-    .where("id", "=", id)
-    .execute();
-}
-
-/**
- * Delete a cardio exercise
- */
-export async function deleteCardioExercise(id: number) {
-  return await queryBuilder.deleteFrom("cardio").where("id", "=", id).execute();
-}
-
-/**
- * Delete a calorie entry
- */
-export async function deleteCalorieEntry(id: number) {
-  return await queryBuilder
-    .deleteFrom("calories")
-    .where("id", "=", id)
-    .execute();
-}
-
-/**
- * Delete a setting
- */
-export async function deleteSetting(id: number) {
-  return await queryBuilder
-    .deleteFrom("settings")
-    .where("id", "=", id)
-    .execute();
-}
 
 // ============================================================================
-// AGGREGATION Operations (Advanced)
+// AGGREGATION Operations (Manual)
 // ============================================================================
 
 /**
- * Get weight statistics using aggregation
+ * Example: Calculate statistics
+ *
+ * @example
+ * export async function getUserStats() {
+ *   const users = await queryBuilder
+ *     .selectFrom("users")
+ *     .select(["age"])
+ *     .execute();
+ *
+ *   if (users.length === 0) {
+ *     return { count: 0, average: null, min: null, max: null };
+ *   }
+ *
+ *   const ages = users.map(u => u.age).filter((a): a is number => a !== undefined);
+ *
+ *   return {
+ *     count: ages.length,
+ *     average: ages.reduce((a, b) => a + b, 0) / ages.length,
+ *     min: Math.min(...ages),
+ *     max: Math.max(...ages),
+ *   };
+ * }
  */
-export async function getWeightStats() {
-  // Note: TaylorDB aggregation API may differ, this is a placeholder
-  // Use the aggregateFrom method if available
-  const weights = await queryBuilder
-    .selectFrom("weight")
-    .select(["weight"])
-    .execute();
-
-  if (weights.length === 0) {
-    return {
-      count: 0,
-      average: null,
-      min: null,
-      max: null,
-    };
-  }
-
-  const values = weights
-    .map((w) => w.weight)
-    .filter((w): w is number => w !== undefined);
-  return {
-    count: values.length,
-    average: values.reduce((a, b) => a + b, 0) / values.length,
-    min: Math.min(...values),
-    max: Math.max(...values),
-  };
-}
 
 /**
- * Get total calories for a date
+ * Example: Sum totals for a date
+ *
+ * @example
+ * export async function getTotalSalesForDate(date: string) {
+ *   const sales = await queryBuilder
+ *     .selectFrom("sales")
+ *     .select(["amount", "quantity"])
+ *     .where("date", "=", ["exactDay", date])
+ *     .execute();
+ *
+ *   return {
+ *     totalAmount: sales.reduce((sum, s) => sum + (s.amount ?? 0), 0),
+ *     totalQuantity: sales.reduce((sum, s) => sum + (s.quantity ?? 0), 0),
+ *   };
+ * }
  */
-export async function getTotalCaloriesForDate(date: string) {
-  const entries = await queryBuilder
-    .selectFrom("calories")
-    .select(["totalCalories", "totalProtein", "totalCarbs", "totalFats"])
-    .where("date", "=", ["exactDay", date])
-    .execute();
 
-  return {
-    totalCalories: entries.reduce((sum, e) => sum + (e.totalCalories ?? 0), 0),
-    totalProtein: entries.reduce((sum, e) => sum + (e.totalProtein ?? 0), 0),
-    totalCarbs: entries.reduce((sum, e) => sum + (e.totalCarbs ?? 0), 0),
-    totalFats: entries.reduce((sum, e) => sum + (e.totalFats ?? 0), 0),
-  };
-}
+/**
+ * ============================================================================
+ * Query Builder Quick Reference
+ * ============================================================================
+ *
+ * SELECT:
+ * - .selectFrom("tableName")
+ * - .select(["field1", "field2"])
+ * - .execute() // Returns array
+ * - .executeTakeFirst() // Returns single record or undefined
+ *
+ * WHERE:
+ * - .where("field", "=", value)
+ * - .where("field", ">", value)
+ * - .where("field", "hasAnyOf", [value1, value2])
+ * - .where("date", ">=", ["exactDay", "2024-01-01"])
+ *
+ * ORDER BY:
+ * - .orderBy("field", "asc")
+ * - .orderBy("field", "desc")
+ *
+ * INSERT:
+ * - .insertInto("tableName")
+ * - .values({ field1: value1, field2: value2 })
+ * - .executeTakeFirst()
+ *
+ * UPDATE:
+ * - .update("tableName")
+ * - .set({ field1: value1 })
+ * - .where("id", "=", id)
+ * - .execute()
+ *
+ * DELETE:
+ * - .deleteFrom("tableName")
+ * - .where("id", "=", id)
+ * - .execute()
+ *
+ * Field Types:
+ * - Text: string
+ * - Number: number
+ * - Date: ["exactDay", "YYYY-MM-DD"]
+ * - Single Select: ["option"]
+ * - Multi Select: ["opt1", "opt2"]
+ * - Boolean: true/false
+ *
+ * For comprehensive examples, see: /docs/TAYLORDB_QUERY_REFERENCE.md
+ */
