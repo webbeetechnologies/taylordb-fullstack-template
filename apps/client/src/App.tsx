@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
+  { to: "/trpc-demo", label: "tRPC Demo" },
 ];
 
 const getInitialTheme = (): "light" | "dark" => {

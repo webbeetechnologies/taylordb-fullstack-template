@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+server/dist
 *.local
 
 # Editor directories and files
@@ -24,6 +25,7 @@ dist-ssr
 *.sw?
 
 .env*
+!.env.example
 .aider*
 
 src/lib/taylordb.types.ts
