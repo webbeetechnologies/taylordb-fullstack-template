@@ -22,7 +22,7 @@ services:
         vars:
           TAYLORDB_BASE_URL: vars.TAYLORDB_BASE_URL
           TAYLORDB_API_KEY: secrets.TAYLORDB_API_TOKEN
-          TAYLORDB_BASE_ID: vars.TAYLORDB_BASE_ID
+          TAYLORDB_BASE_ID: vars.TAYLORDB_SERVER_ID
           FRONTEND_URL: routing.client.url
   
   client:
