@@ -26,7 +26,7 @@ function getBaseUrl() {
 export const trpcClient: TRPCClient<AppRouter> = trpc.createClient({
   links: [
     httpBatchLink({
-      url: `${getBaseUrl()}/api/trpc`,
+      url: `${getBaseUrl()}/trpc`,
       // Optional: add headers, credentials, etc.
       // headers() {
       //   return {
