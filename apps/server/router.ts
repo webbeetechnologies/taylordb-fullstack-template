@@ -1,34 +1,29 @@
 import { z } from "zod";
 import { router, publicProcedure } from "./trpc";
-// import * as db from "./taylordb/query-builder";
+import { usersRouter, postsRouter } from "./routers";
 
 /**
  * Main tRPC Router
  *
- * This is your main API router. Define all your procedures here.
- * Group related procedures together for better organization.
+ * This router merges all sub-routers from the routers/ directory.
+ * Each domain (users, posts, etc.) has its own file for better organization.
  *
- * Example structure:
- *
- * export const appRouter = router({
- *   users: {
- *     getAll: publicProcedure.query(async () => { ... }),
- *     getById: publicProcedure.input(z.object({ id: z.number() })).query(async ({ input }) => { ... }),
- *     create: publicProcedure.input(z.object({ ... })).mutation(async ({ input }) => { ... }),
- *     update: publicProcedure.input(z.object({ ... })).mutation(async ({ input }) => { ... }),
- *     delete: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => { ... }),
- *   },
- *   posts: {
- *     // ...
- *   },
- * });
+ * To add a new domain:
+ * 1. Create a new file in routers/ (e.g., routers/comments.ts)
+ * 2. Export the router from routers/index.ts
+ * 3. Import and add it below
  */
 
 export const appRouter = router({
   // ============================================================================
-  // Example / Test Procedures
+  // Sub-Routers (organized by domain)
   // ============================================================================
+  users: usersRouter,
+  posts: postsRouter,
 
+  // ============================================================================
+  // Global / Utility Procedures
+  // ============================================================================
   hello: publicProcedure
     .input(
       z
@@ -44,50 +39,6 @@ export const appRouter = router({
         uptime: process.uptime(),
       };
     }),
-
-  // ============================================================================
-  // Your API Procedures
-  // ============================================================================
-  //
-  // Add your procedures here following this pattern:
-  //
-  // tableName: {
-  //   getAll: publicProcedure.query(async () => {
-  //     return await db.getAllRecords();
-  //   }),
-  //
-  //   getById: publicProcedure
-  //     .input(z.object({ id: z.number() }))
-  //     .query(async ({ input }) => {
-  //       return await db.getRecordById(input.id);
-  //     }),
-  //
-  //   create: publicProcedure
-  //     .input(z.object({
-  //       name: z.string().min(1),
-  //       status: z.string()
-  //     }))
-  //     .mutation(async ({ input }) => {
-  //       return await db.createRecord(input);
-  //     }),
-  //
-  //   update: publicProcedure
-  //     .input(z.object({
-  //       id: z.number(),
-  //       name: z.string().optional(),
-  //       status: z.string().optional()
-  //     }))
-  //     .mutation(async ({ input }) => {
-  //       const { id, ...data } = input;
-  //       return await db.updateRecord(id, data);
-  //     }),
-  //
-  //   delete: publicProcedure
-  //     .input(z.object({ id: z.number() }))
-  //     .mutation(async ({ input }) => {
-  //       return await db.deleteRecord(input.id);
-  //     }),
-  // },
 });
 
 // Export type definition of API

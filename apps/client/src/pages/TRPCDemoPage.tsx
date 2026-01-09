@@ -10,88 +10,108 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon, Loader2 } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Trash2,
+  Edit2,
+  Check,
+  X,
+  Sparkles,
+  Users,
+  FileText,
+  Zap,
+} from "lucide-react";
 
 export default function TRPCDemoPage() {
   return (
-    <div className="container mx-auto p-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">tRPC + TaylorDB Demo</h1>
-        <p className="text-muted-foreground">
-          Example of type-safe API calls with tRPC
-        </p>
-      </div>
+    <div className="min-h-screen gradient-bg">
+      <div className="container mx-auto p-8 max-w-4xl">
+        {/* Hero Header */}
+        <div className="mb-12 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            <Sparkles className="h-4 w-4" />
+            Type-safe API Demo
+          </div>
+          <h1 className="text-5xl font-bold mb-4 gradient-text">
+            tRPC + TaylorDB
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-md mx-auto">
+            Experience the power of end-to-end type safety with a beautiful,
+            modern interface
+          </p>
+        </div>
 
-      <div className="grid gap-6">
-        {/* Info Alert */}
-        <Alert>
-          <InfoIcon className="h-4 w-4" />
-          <AlertTitle>Template Example</AlertTitle>
-          <AlertDescription>
-            This page demonstrates a simple tRPC query. Replace this with your
-            own queries based on your TaylorDB schema. See{" "}
-            <code className="font-mono text-sm">apps/server/router.ts</code> to
-            add more procedures.
-          </AlertDescription>
-        </Alert>
+        <div className="grid gap-8">
+          <HelloExample />
+          <UsersExample />
+          <PostsExample />
+        </div>
 
-        {/* Example: Hello Query */}
-        <HelloExample />
+        {/* Footer */}
+        <div className="mt-12 text-center text-sm text-muted-foreground">
+          <p>Built with 💜 using tRPC, React Query & TaylorDB</p>
+        </div>
       </div>
     </div>
   );
 }
 
 // ============================================================================
-// Example Component: Simple Query
+// Hello Query Example
 // ============================================================================
 
 function HelloExample() {
   const [name, setName] = useState("");
   const { data, isLoading, refetch } = trpc.hello.useQuery(
     { name: name || undefined },
-    { enabled: false } // Only run when user clicks button
+    { enabled: false }
   );
 
-  const handleQuery = () => {
-    refetch();
-  };
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Example: Hello Query</CardTitle>
-        <CardDescription>
-          A simple tRPC query to test the connection
-        </CardDescription>
+    <Card className="card-hover glass-card overflow-hidden">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-primary/10 glow-primary">
+            <Zap className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-xl">Hello Query</CardTitle>
+            <CardDescription>
+              Simple query to test the connection
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-2">
-          <Label htmlFor="name">Name (optional)</Label>
+        <div className="flex gap-3">
           <Input
-            id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name..."
+            className="flex-1"
           />
+          <Button
+            onClick={() => refetch()}
+            disabled={isLoading}
+            className="min-w-[100px]"
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin pulse-glow" />
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 mr-2" />
+                Send
+              </>
+            )}
+          </Button>
         </div>
-
-        <Button onClick={handleQuery} disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Loading...
-            </>
-          ) : (
-            "Send Query"
-          )}
-        </Button>
-
         {data && (
-          <div className="mt-4 p-4 border rounded-lg bg-muted/50">
-            <p className="font-medium text-sm mb-2">Response:</p>
-            <pre className="text-sm">{JSON.stringify(data, null, 2)}</pre>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-lg" />
+            <pre className="relative p-4 rounded-lg text-sm font-mono overflow-x-auto">
+              {JSON.stringify(data, null, 2)}
+            </pre>
           </div>
         )}
       </CardContent>
@@ -99,30 +119,331 @@ function HelloExample() {
   );
 }
 
-/**
- * ============================================================================
- * Add Your Own Components Here
- * ============================================================================
- *
- * Follow this pattern to create your own tRPC queries and mutations:
- *
- * 1. Create procedures in apps/server/router.ts
- * 2. Use trpc.<procedure>.useQuery() for queries (reading data)
- * 3. Use trpc.<procedure>.useMutation() for mutations (writing data)
- * 4. Handle loading and error states
- * 5. Refetch queries after mutations to update the UI
- *
- * Example Query:
- * const { data, isLoading, error } = trpc.items.getAll.useQuery();
- *
- * Example Mutation:
- * const createMutation = trpc.items.create.useMutation({
- *   onSuccess: () => {
- *     // Refetch or invalidate queries
- *   },
- * });
- *
- * For comprehensive examples, see:
- * - docs/SHADCN_COMPONENTS_GUIDE.md - UI component patterns
- * - AGENTS.md - Complete development workflow
- */
+// ============================================================================
+// Users CRUD Example
+// ============================================================================
+
+function UsersExample() {
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+
+  const utils = trpc.useUtils();
+  const { data: users, isLoading } = trpc.users.getAll.useQuery();
+
+  const createMutation = trpc.users.create.useMutation({
+    onSuccess: () => {
+      utils.users.getAll.invalidate();
+      setNewName("");
+      setNewEmail("");
+    },
+  });
+
+  const updateMutation = trpc.users.update.useMutation({
+    onSuccess: () => {
+      utils.users.getAll.invalidate();
+      setEditingId(null);
+    },
+  });
+
+  const deleteMutation = trpc.users.delete.useMutation({
+    onSuccess: () => utils.users.getAll.invalidate(),
+  });
+
+  const startEditing = (user: { id: number; name: string; email: string }) => {
+    setEditingId(user.id);
+    setEditName(user.name);
+    setEditEmail(user.email);
+  };
+
+  return (
+    <Card className="card-hover glass-card overflow-hidden">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-secondary/10 glow-secondary">
+            <Users className="h-5 w-5 text-secondary" />
+          </div>
+          <div>
+            <CardTitle className="text-xl">Users</CardTitle>
+            <CardDescription>Full CRUD operations example</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Create Form */}
+        <div className="flex gap-3">
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Name"
+            className="flex-1"
+          />
+          <Input
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            placeholder="Email"
+            className="flex-1"
+          />
+          <Button
+            onClick={() =>
+              createMutation.mutate({ name: newName, email: newEmail })
+            }
+            disabled={!newName || !newEmail || createMutation.isPending}
+            size="icon"
+            className="shrink-0"
+          >
+            {createMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+
+        {/* Users List */}
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary pulse-glow" />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {users?.length === 0 && (
+              <p className="text-center text-muted-foreground py-4">
+                No users yet. Create one above!
+              </p>
+            )}
+            {users?.map((user) => (
+              <div
+                key={user.id}
+                className="item-row flex items-center gap-3 p-4 rounded-lg bg-muted/30 border border-border/50"
+              >
+                {editingId === user.id ? (
+                  <>
+                    <Input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Input
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-green-500 hover:text-green-600 hover:bg-green-500/10"
+                      onClick={() =>
+                        updateMutation.mutate({
+                          id: user.id,
+                          name: editName,
+                          email: editEmail,
+                        })
+                      }
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={() => setEditingId(null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-sm font-medium">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium">{user.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {user.email}
+                      </div>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-muted-foreground hover:text-primary"
+                      onClick={() => startEditing(user)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-muted-foreground hover:text-destructive"
+                      onClick={() => deleteMutation.mutate({ id: user.id })}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ============================================================================
+// Posts Example
+// ============================================================================
+
+function PostsExample() {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [authorId, setAuthorId] = useState("1");
+
+  const utils = trpc.useUtils();
+  const { data: posts, isLoading } = trpc.posts.getAll.useQuery();
+
+  const createMutation = trpc.posts.create.useMutation({
+    onSuccess: () => {
+      utils.posts.getAll.invalidate();
+      setTitle("");
+      setContent("");
+    },
+  });
+
+  const publishMutation = trpc.posts.publish.useMutation({
+    onSuccess: () => utils.posts.getAll.invalidate(),
+  });
+
+  const deleteMutation = trpc.posts.delete.useMutation({
+    onSuccess: () => utils.posts.getAll.invalidate(),
+  });
+
+  return (
+    <Card className="card-hover glass-card overflow-hidden">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-accent/10 glow-accent">
+            <FileText className="h-5 w-5 text-accent" />
+          </div>
+          <div>
+            <CardTitle className="text-xl">Posts</CardTitle>
+            <CardDescription>With publish action and filtering</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Create Form */}
+        <div className="space-y-3">
+          <div className="flex gap-3">
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Post title..."
+              className="flex-1"
+            />
+            <div className="w-28">
+              <Label className="text-xs text-muted-foreground mb-1 block">
+                Author ID
+              </Label>
+              <Input
+                value={authorId}
+                onChange={(e) => setAuthorId(e.target.value)}
+                type="number"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Input
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write something amazing..."
+              className="flex-1"
+            />
+            <Button
+              onClick={() =>
+                createMutation.mutate({
+                  title,
+                  content,
+                  authorId: parseInt(authorId),
+                  published: false,
+                })
+              }
+              disabled={!title || !content || createMutation.isPending}
+            >
+              {createMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Posts List */}
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-accent pulse-glow" />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {posts?.length === 0 && (
+              <p className="text-center text-muted-foreground py-4">
+                No posts yet. Create your first post!
+              </p>
+            )}
+            {posts?.map((post) => (
+              <div
+                key={post.id}
+                className="item-row p-4 rounded-lg bg-muted/30 border border-border/50"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold truncate">{post.title}</h3>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                          post.published ? "badge-success" : "badge-warning"
+                        }`}
+                      >
+                        {post.published ? "Published" : "Draft"}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {post.content}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {!post.published && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-secondary border-secondary/30 hover:bg-secondary/10"
+                        onClick={() => publishMutation.mutate({ id: post.id })}
+                      >
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Publish
+                      </Button>
+                    )}
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-muted-foreground hover:text-destructive"
+                      onClick={() => deleteMutation.mutate({ id: post.id })}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

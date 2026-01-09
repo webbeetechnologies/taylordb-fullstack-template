@@ -14,10 +14,10 @@ export const trpc: CreateTRPCReact<AppRouter, unknown> =
 function getBaseUrl() {
   if (typeof window !== "undefined") {
     // Browser: use relative URL or environment variable
-    return import.meta.env.VITE_TRPC_URL || "http://localhost:3001";
+    return import.meta.env.VITE_TRPC_URL || "http://localhost:3001/api";
   }
   // SSR: assume localhost
-  return "http://localhost:3001";
+  return "http://localhost:3001/api";
 }
 
 /**
