@@ -362,7 +362,7 @@
 }
 
 .card-hover:hover {
-  box-shadow: 0 20px 40px -12px hsl(var(--primary) / 0.25);
+  box-shadow: 0 10px 20px -12px hsl(var(--primary) / 0.25);
 }
 
 /* Glassmorphism card */
