@@ -5,10 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import App from "./App";
 import "./index.css";
-import AboutPage from "./pages/AboutPage";
-import HomePage from "./pages/HomePage";
-import NotFoundPage from "./pages/NotFoundPage";
 import TRPCDemoPage from "./pages/TRPCDemoPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import { trpc, trpcClient } from "./lib/trpc";
 
 // Create a React Query client
@@ -24,11 +22,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    children: [
-      { index: true, element: <HomePage /> },
-      { path: "about", element: <AboutPage /> },
-      { path: "trpc-demo", element: <TRPCDemoPage /> },
-    ],
+    children: [{ index: true, element: <TRPCDemoPage /> }],
   },
   { path: "*", element: <NotFoundPage /> },
 ]);
