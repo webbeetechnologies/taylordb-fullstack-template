@@ -9,7 +9,9 @@
     "./router": "./router.ts"
   },
   "scripts": {
-    "build": "pnpm exec esbuild index.ts --bundle --outfile=dist/index.js --format=esm --platform=node --packages=external"
+    "dev": "tsx watch index.ts",
+    "build": "pnpm exec esbuild index.ts --bundle --outfile=dist/index.js --format=esm --platform=node --packages=external",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@taylordb/query-builder": "^0.16.5",

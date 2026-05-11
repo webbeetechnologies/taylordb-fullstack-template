@@ -4,8 +4,10 @@
   "version": "0.0.10",
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
