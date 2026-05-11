@@ -6,7 +6,7 @@ project: blank
 
 runtime:
   type: node
-  version: 22
+  version: 20
   packageManager: pnpm
 
 services:
