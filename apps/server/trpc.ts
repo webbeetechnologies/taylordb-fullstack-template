@@ -2,6 +2,8 @@ import { createQueryBuilder } from "@taylordb/query-builder";
 import { initTRPC } from "@trpc/server";
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { TaylorDatabase } from "./taylordb/types";
+import { createRepositories } from "./repositories/index";
+import { createServices } from "./services/index";
 
 /**
  * Create context for each tRPC request
@@ -21,10 +23,15 @@ export const createContext = ({ req, res }: CreateExpressContextOptions) => {
     apiKey: appAccessToken,
   });
 
+  const repositories = createRepositories(queryBuilder);
+  const services = createServices(repositories);
+
   return {
     req,
     res,
     queryBuilder,
+    repositories,
+    services,
   };
 };
 

@@ -139,8 +139,8 @@ importers:
   apps/server:
     dependencies:
       '@taylordb/query-builder':
-        specifier: ^0.11.4
-        version: 0.11.4
+        specifier: ^0.16.5
+        version: 0.16.5
       '@trpc/server':
         specifier: ^11.8.1
         version: 11.8.1(typescript@5.9.3)
@@ -1285,14 +1285,14 @@ packages:
   '@taylordb/query-builder@0.10.3':
     resolution: {integrity: sha512-GwsrSdCQelTvghPY4uzoSWHI2vsWFOFSOb4IKRS0qQT8Z6jG8VWMOSRwocvcMoQfOf2RqCDt9Wew1dK6FZNBHA==}
 
-  '@taylordb/query-builder@0.11.4':
-    resolution: {integrity: sha512-5hGFtxTKtRK76BUq08c95lqzYBcCTNRm1W04z1P8ufAVvSrr9Iuq1sPf8D7ayBJrAZ8KHThwvAR9w4n0vqiwYQ==}
+  '@taylordb/query-builder@0.16.5':
+    resolution: {integrity: sha512-jQUozR2M9EoFfgdfYEdJTCMbv6XdEjsrUekidjnTFpRzhAXcg4nU3QW0ga9OEDvSGE1O2hDIpiAM62P6EGPK2Q==}
+
+  '@taylordb/shared@0.16.5':
+    resolution: {integrity: sha512-/vPZenSd/KQ802bzrBXEvcbbV89NsA1UVVr7pY2u0kf2xSO+FA9aK24oRZe5UJBYDvPmCUOS7spiwEUC9amcCQ==}
 
   '@taylordb/shared@0.4.4':
     resolution: {integrity: sha512-Xykr4I26JapNLePkapBGjz15t9Ep1iLs30VbfCcc2z30x8Qy/2tm+sSa5LcacCP2EaxNVDp2UuYKhZ7kOWBLBQ==}
-
-  '@taylordb/shared@0.5.4':
-    resolution: {integrity: sha512-85tqzVQXsbx3rUAhpcdeA/BKHaHEFgpMxjmRAb12bD4U4ghGrcFw1eyaq+/YtoBfiWChPCruCK+d03e+rEMoiA==}
 
   '@trpc/client@11.8.1':
     resolution: {integrity: sha512-L/SJFGanr9xGABmuDoeXR4xAdHJmsXsiF9OuH+apecJ+8sUITzVT1EPeqp0ebqA6lBhEl5pPfg3rngVhi/h60Q==}
@@ -3684,9 +3684,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@taylordb/query-builder@0.11.4':
+  '@taylordb/query-builder@0.16.5':
     dependencies:
-      '@taylordb/shared': 0.5.4
+      '@taylordb/shared': 0.16.5
       eventemitter3: 5.0.1
       fast-json-patch: 3.1.1
       json-to-graphql-query: 2.3.0
@@ -3698,11 +3698,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@taylordb/shared@0.4.4':
+  '@taylordb/shared@0.16.5':
     dependencies:
       lodash: 4.17.21
 
-  '@taylordb/shared@0.5.4':
+  '@taylordb/shared@0.4.4':
     dependencies:
       lodash: 4.17.21
 

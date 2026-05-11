@@ -29,3 +29,4 @@ server/dist
 .aider*
 
 src/lib/taylordb.types.ts
+.opencode

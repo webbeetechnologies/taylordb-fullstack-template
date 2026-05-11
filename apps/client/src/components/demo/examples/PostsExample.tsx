@@ -47,8 +47,6 @@ export function PostsExample() {
     createMutation.mutate({
       title,
       content,
-      authorId: parseInt(authorId),
-      published: false,
     });
   };
 
@@ -80,14 +78,16 @@ export function PostsExample() {
           {posts?.length === 0 && (
             <EmptyState message="No posts yet. Create your first post!" />
           )}
-          {posts?.map((post) => (
+          {posts?.map((post) => {
+            if (!post.id || !post.title || post.published === undefined) return null;
+            return (
             <PostCard
               key={post.id}
-              post={post}
-              onPublish={() => publishMutation.mutate({ id: post.id })}
-              onDelete={() => deleteMutation.mutate({ id: post.id })}
+              post={post as Post}
+              onPublish={() => publishMutation.mutate({ id: post.id! })}
+              onDelete={() => deleteMutation.mutate({ id: post.id! })}
             />
-          ))}
+          )})}
         </div>
       )}
     </DemoCard>

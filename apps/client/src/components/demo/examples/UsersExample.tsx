@@ -87,21 +87,23 @@ export function UsersExample() {
           {users?.length === 0 && (
             <EmptyState message="No users yet. Create one above!" />
           )}
-          {users?.map((user) => (
+          {users?.map((user) => {
+            if (!user.id || !user.name || !user.email) return null;
+            return (
             <UserRow
               key={user.id}
-              user={user}
+              user={user as User}
               isEditing={editingId === user.id}
               editName={editName}
               editEmail={editEmail}
               onEditNameChange={setEditName}
               onEditEmailChange={setEditEmail}
-              onStartEdit={() => startEditing(user)}
+              onStartEdit={() => startEditing(user as User)}
               onCancelEdit={() => setEditingId(null)}
-              onSaveEdit={() => handleUpdate(user.id)}
-              onDelete={() => deleteMutation.mutate({ id: user.id })}
+              onSaveEdit={() => handleUpdate(user.id!)}
+              onDelete={() => deleteMutation.mutate({ id: user.id! })}
             />
-          ))}
+          )})}
         </div>
       )}
     </DemoCard>

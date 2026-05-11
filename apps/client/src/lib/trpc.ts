@@ -29,8 +29,16 @@ export const trpcClient: TRPCClient<AppRouter> = trpc.createClient({
   links: [
     splitLink({
       condition: (op) => op.input instanceof FormData,
-      true: httpLink({ url: trpcUrl }),
-      false: httpBatchLink({ url: trpcUrl }),
+      true: httpLink({
+        url: trpcUrl,
+        fetch: (url, options) =>
+          fetch(url, { ...options, credentials: "include" }),
+      }),
+      false: httpBatchLink({
+        url: trpcUrl,
+        fetch: (url, options) =>
+          fetch(url, { ...options, credentials: "include" }),
+      }),
     }),
   ],
 });
