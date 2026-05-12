@@ -7,11 +7,7 @@ HTTP Request (with app_access_token cookie)
   ↓
 Express + tRPC (apps/server/index.ts, apps/server/trpc.ts)
   ↓
-Repositories (apps/server/repositories/index.ts) — typed DB methods per table
-  ↓
-Services (apps/server/services/index.ts) — business logic, cross-repo operations
-  ↓
-Routers (apps/server/routers/) — tRPC procedures exposing repositories/services
+Routers (apps/server/routers/) — tRPC procedures using ctx.queryBuilder directly
   ↓
 tRPC Client (apps/client/src/lib/trpc.ts)
   ↓
@@ -23,12 +19,10 @@ React Pages (apps/client/src/pages/) — consume via tRPC React Query hooks
 ## Critical Files — Read in This Order
 
 1. **[apps/server/taylordb/types.ts](apps/server/taylordb/types.ts)** — Database schema (tables, columns, types). Generated, never edit.
-2. **[apps/server/repositories/index.ts](apps/server/repositories/index.ts)** — Typed methods per table. One repository factory per domain.
-3. **[apps/server/services/index.ts](apps/server/services/index.ts)** — Business logic layer. Services use repositories.
-4. **[apps/server/routers/](apps/server/routers/)** — tRPC procedures. Call `ctx.repositories.*` or `ctx.services.*`, never raw QB.
-5. **[apps/client/src/lib/trpc.ts](apps/client/src/lib/trpc.ts)** — tRPC client setup. Sends cookies with `credentials: "include"`.
+2. **[apps/server/routers/](apps/server/routers/)** — tRPC procedures. Call `ctx.queryBuilder` here.
+3. **[apps/client/src/lib/trpc.ts](apps/client/src/lib/trpc.ts)** — tRPC client setup. Sends cookies with `credentials: "include"`.
 
-Do NOT read `apps/server/taylordb/query-builder.ts` — it does not exist as a source file. The query builder is an npm package (`@taylordb/query-builder`) accessed via repositories.
+Do NOT read `apps/server/taylordb/query-builder.ts` — it does not exist as a source file. The query builder is an npm package (`@taylordb/query-builder`).
 
 ---
 
@@ -52,17 +46,9 @@ if (!appAccessToken) throw new Error("Unauthorized");
 
 ---
 
-## DI Container Pattern (ctx)
+## Context (ctx)
 
-Every tRPC request gets fresh context with three layers:
-
-| `ctx` property | What | When to use |
-|---|---|---|
-| `ctx.repositories` | Typed DB methods per table | Direct DB reads/writes (95% of procedures) |
-| `ctx.services` | Business logic combining repos | Computed aggregations, multi-repo logic |
-| `ctx.queryBuilder` | Raw query builder instance | File uploads **only** (`uploadAttachments`) |
-
-**Never call `ctx.queryBuilder.selectFrom(...)` in a router.** Always go through repositories or services.
+Every tRPC request gets a fresh context containing `ctx.queryBuilder`. Use `ctx.queryBuilder` directly within your router procedures for all database reads, writes, and uploads.
 
 ---
 
@@ -272,17 +258,16 @@ This file is the entrypoint to understanding the query builder. Always consult `
 
 ## Critical Rules
 
-1. **NEVER use in-memory data.** Always connect via `ctx.repositories` or `ctx.services`.
-2. **NEVER call raw QB in routers** (`ctx.queryBuilder.selectFrom`). Use repositories.
-3. **NEVER edit `apps/server/taylordb/types.ts`.** It is auto-generated.
-4. **NEVER add per-procedure auth.** Auth is centralized in `createContext`.
-5. **NEVER start, stop, or manage the server process manually.** The application is strictly managed by a root `pm2` process. You are operating as an unprivileged `taylordb` user. If you need to restart the server, you MUST use the `dev-server-restart` tool. Do not run `npm start`, `pm2 restart`, `node index.js`, or similar commands.
-6. **ALWAYS run `pnpm build`** to verify TypeScript before declaring work done.
-7. **ALWAYS use `executeTakeFirst()`** for single-record queries, `execute()` for lists.
-8. **ALWAYS use `["exactDay", "YYYY-MM-DD"]`** format for date equality filters.
-9. **ALWAYS handle `undefined`** from `executeTakeFirst()` — it can return undefined.
-10. **ALWAYS use shadcn/ui** for UI components, not hand-rolled HTML.
-11. **ALWAYS use `Partial<TableInserts<"table">>`** for type-safe insert/update parameters.
+1. **NEVER use in-memory data.** Always connect via `ctx.queryBuilder`.
+2. **NEVER edit `apps/server/taylordb/types.ts`.** It is auto-generated.
+3. **NEVER add per-procedure auth.** Auth is centralized in `createContext`.
+4. **NEVER start, stop, or manage the server process manually.** The application is strictly managed by a root `pm2` process. You are operating as an unprivileged `taylordb` user. If you need to restart the server, you MUST use the `dev-server-restart` tool. Do not run `npm start`, `pm2 restart`, `node index.js`, or similar commands.
+5. **ALWAYS run `pnpm build`** to verify TypeScript before declaring work done.
+6. **ALWAYS use `executeTakeFirst()`** for single-record queries, `execute()` for lists.
+7. **ALWAYS use `["exactDay", "YYYY-MM-DD"]`** format for date equality filters.
+8. **ALWAYS handle `undefined`** from `executeTakeFirst()` — it can return undefined.
+9. **ALWAYS use shadcn/ui** for UI components, not hand-rolled HTML.
+10. **ALWAYS use `Partial<TableInserts<"table">>`** for type-safe insert/update parameters.
 
 ---
 
@@ -290,6 +275,6 @@ This file is the entrypoint to understanding the query builder. Always consult `
 
 - `pnpm build` passes with zero TypeScript errors
 - `pnpm lint` passes with zero errors
-- All tRPC procedures use `ctx.repositories` or `ctx.services` (never raw QB except `uploadAttachments`)
+- All tRPC procedures use `ctx.queryBuilder`
 - No in-memory data stores in routers
 - UI uses shadcn/ui components with proper loading/error states
