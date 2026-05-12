@@ -254,6 +254,8 @@ For detailed query builder reference, you MUST read the documentation provided i
 
 This file is the entrypoint to understanding the query builder. Always consult `apps/server/node_modules/@taylordb/query-builder/llm.txt` and the `docs/` folder next to it when you need to understand how to interact with the database.
 
+**IMPORTANT:** Always check for an `llm.txt` file when interacting with ANY package starting with `@taylordb/`. All `@taylordb/` packages expose an `llm.txt` in their root which acts as the official documentation. You MUST read it before using the package.
+
 ---
 
 ## Critical Rules
