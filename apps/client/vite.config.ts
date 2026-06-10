@@ -70,7 +70,7 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: [".develop.taylordb.ai", "localhost", "127.0.0.1"],
+    allowedHosts: true,
     host: true,
     port: 5173,
     hmr: {
