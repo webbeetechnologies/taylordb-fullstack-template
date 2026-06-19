@@ -14,7 +14,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@taylordb/query-builder": "^0.17.0",
+    "@taylordb/query-builder": "^0.18.3",
     "@trpc/server": "^11.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

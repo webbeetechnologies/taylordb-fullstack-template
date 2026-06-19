@@ -91,8 +91,8 @@ importers:
         specifier: ^4.1.18
         version: 4.1.18(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
       '@taylordb/query-builder':
-        specifier: ^0.10.3
-        version: 0.10.3
+        specifier: ^0.18.3
+        version: 0.18.3
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
@@ -139,8 +139,8 @@ importers:
   apps/server:
     dependencies:
       '@taylordb/query-builder':
-        specifier: ^0.17.0
-        version: 0.17.0
+        specifier: ^0.18.3
+        version: 0.18.3
       '@trpc/server':
         specifier: ^11.8.1
         version: 11.8.1(typescript@5.9.3)
@@ -1282,17 +1282,11 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
-  '@taylordb/query-builder@0.10.3':
-    resolution: {integrity: sha512-GwsrSdCQelTvghPY4uzoSWHI2vsWFOFSOb4IKRS0qQT8Z6jG8VWMOSRwocvcMoQfOf2RqCDt9Wew1dK6FZNBHA==}
+  '@taylordb/query-builder@0.18.3':
+    resolution: {integrity: sha512-hRse9Sxy1sZdcmzPTfakVcGkVmL/fiw/ik6ZVfce8Am91c9m6LYQtHHUFPGRF5WZNrZG71+zNbhxgCCgyTlHMw==}
 
-  '@taylordb/query-builder@0.17.0':
-    resolution: {integrity: sha512-IhZZDa3dr4nOZVB8Go9KsOtshJX+rdUWcfN8VCbkuxH9qO2CpiQT1uqnQeoXlOqRqdtXCwevY7fhs34wZLJfOQ==}
-
-  '@taylordb/shared@0.17.0':
-    resolution: {integrity: sha512-Bp+deONreSCe6xcbXt8sZybO6Tp0+wMSPUGFYR/mWTVLdDrzdXnOuIbvjBTY/a/lJdEE8Vvg7Hghir2Q6Q60kg==}
-
-  '@taylordb/shared@0.4.4':
-    resolution: {integrity: sha512-Xykr4I26JapNLePkapBGjz15t9Ep1iLs30VbfCcc2z30x8Qy/2tm+sSa5LcacCP2EaxNVDp2UuYKhZ7kOWBLBQ==}
+  '@taylordb/shared@0.18.3':
+    resolution: {integrity: sha512-F5alnPfIB3Bo0Y/OHFZCuaF7tl8EbL8BVTs4BLwsUkVhB5sqILYk6Lj696UCzOT3t8ofxmTspx8x4tgAiSgLfg==}
 
   '@trpc/client@11.8.1':
     resolution: {integrity: sha512-L/SJFGanr9xGABmuDoeXR4xAdHJmsXsiF9OuH+apecJ+8sUITzVT1EPeqp0ebqA6lBhEl5pPfg3rngVhi/h60Q==}
@@ -3670,9 +3664,9 @@ snapshots:
       '@tanstack/query-core': 5.90.16
       react: 19.2.0
 
-  '@taylordb/query-builder@0.10.3':
+  '@taylordb/query-builder@0.18.3':
     dependencies:
-      '@taylordb/shared': 0.4.4
+      '@taylordb/shared': 0.18.3
       eventemitter3: 5.0.1
       fast-json-patch: 3.1.1
       json-to-graphql-query: 2.3.0
@@ -3684,25 +3678,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@taylordb/query-builder@0.17.0':
-    dependencies:
-      '@taylordb/shared': 0.17.0
-      eventemitter3: 5.0.1
-      fast-json-patch: 3.1.1
-      json-to-graphql-query: 2.3.0
-      lodash: 4.17.21
-      socket.io-client: 4.8.3
-      zod: 4.3.5
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-
-  '@taylordb/shared@0.17.0':
-    dependencies:
-      lodash: 4.17.21
-
-  '@taylordb/shared@0.4.4':
+  '@taylordb/shared@0.18.3':
     dependencies:
       lodash: 4.17.21
 
