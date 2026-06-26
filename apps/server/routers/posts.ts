@@ -56,7 +56,11 @@ export const postsRouter = router({
     return newPost;
 
     // TaylorDB:
-    // return await ctx.queryBuilder.insertInto("posts").values({ ...input, published: false }).executeTakeFirst();
+    // return await ctx.queryBuilder
+    //   .insertInto("posts")
+    //   .values({ ...input, published: false })
+    //   .returning(["id", "title", "content", "published", "createdAt"])
+    //   .executeTakeFirst();
   }),
 
   publish: publicProcedure.input(postIdInput).mutation(async ({ input }) => {

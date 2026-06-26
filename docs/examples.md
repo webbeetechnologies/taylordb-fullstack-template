@@ -1,16 +1,30 @@
 # Router Examples
 
-## Why the template uses in-memory demos
+## Why the Template Uses Schema-Agnostic Demos
 
 On first boot, TaylorDB regenerates `apps/server/taylordb/types.ts` from **your** base schema (`taylordb.yml` → `taylordb.types`). The tables in that file depend on what you created in TaylorDB — they may not include `users` or `posts`.
 
 If router code calls `ctx.queryBuilder.selectFrom("posts")` when `"posts"` is not in your generated types, TypeScript fails at build time and tRPC return types break on the client too.
 
-The shipped `users` and `posts` routers use **in-memory stores** so the demo builds and runs on any schema. When you add matching tables to your base, replace the in-memory bodies with the TaylorDB snippets below (also commented in the router files).
+The shipped `users` and `posts` routers use **in-memory demo stores** so the template builds on any schema. Do not copy that pattern into production features. When your base has matching tables, replace the demo bodies with TaylorDB query-builder calls like the snippets below.
+
+For the full query-builder reference, read:
+
+- `apps/server/node_modules/@taylordb/query-builder/llm.txt`
+- The package docs in `apps/server/node_modules/@taylordb/query-builder/docs/`
+
+## Current Query Builder Notes
+
+- `ctx.queryBuilder` is created per request in `apps/server/trpc.ts` with `createQueryBuilder<TaylorDatabase>()`.
+- `execute()` returns an array for list queries.
+- `executeTakeFirst()` returns the first result or `null`.
+- `insertInto().values()` returns `{ id: number }` by default; use `.returning([...])` when you need additional fields.
+- Attachment fields accept an `Attachment[]` from `ctx.queryBuilder.uploadAttachments()`.
+- Link fields accept `number[]` on insert.
 
 ## TaylorDB implementations
 
-Copy these into `apps/server/routers/posts.ts` / `users.ts` once the tables exist in `taylordb/types.ts`.
+Copy these into `apps/server/routers/posts.ts` / `users.ts` once the tables exist in `apps/server/taylordb/types.ts`.
 
 ### Posts router (TaylorDB)
 
@@ -25,11 +39,19 @@ export const postsRouter = router({
   }),
 
   getById: publicProcedure.input(postIdInput).query(async ({ input, ctx }) => {
-    return await ctx.queryBuilder.selectFrom("posts").where("id", "=", input.id).executeTakeFirst();
+    return await ctx.queryBuilder
+      .selectFrom("posts")
+      .select(["id", "title", "content", "published", "createdAt"])
+      .where("id", "=", input.id)
+      .executeTakeFirst();
   }),
 
   create: publicProcedure.input(createPostInput).mutation(async ({ input, ctx }) => {
-    return await ctx.queryBuilder.insertInto("posts").values({ ...input, published: false }).executeTakeFirst();
+    return await ctx.queryBuilder
+      .insertInto("posts")
+      .values({ ...input, published: false })
+      .returning(["id", "title", "content", "published", "createdAt"])
+      .executeTakeFirst();
   }),
 
   publish: publicProcedure.input(postIdInput).mutation(async ({ input, ctx }) => {
@@ -57,13 +79,21 @@ export const usersRouter = router({
   getById: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input, ctx }) => {
-      return await ctx.queryBuilder.selectFrom("users").where("id", "=", input.id).executeTakeFirst();
+      return await ctx.queryBuilder
+        .selectFrom("users")
+        .select(["id", "name", "email", "createdAt"])
+        .where("id", "=", input.id)
+        .executeTakeFirst();
     }),
 
   create: publicProcedure
     .input(z.object({ name: z.string(), email: z.string().email() }))
     .mutation(async ({ input, ctx }) => {
-      return await ctx.queryBuilder.insertInto("users").values(input).executeTakeFirst();
+      return await ctx.queryBuilder
+        .insertInto("users")
+        .values(input)
+        .returning(["id", "name", "email", "createdAt"])
+        .executeTakeFirst();
     }),
 
   update: publicProcedure

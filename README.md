@@ -38,13 +38,14 @@ taylordb-fullstack-template/
 │   │
 │   └── server/                 # Node.js backend
 │       ├── taylordb/
-│       │   ├── types.ts        # Generated schema types
-│       │   └── query-builder.ts # Database operations
-│       ├── router.ts           # tRPC API routes
+│       │   └── types.ts        # Generated runtime schema + TaylorDatabase type
+│       ├── trpc.ts             # Per-request query builder context
+│       ├── router.ts           # Root tRPC API router
+│       ├── routers/            # Domain routers using ctx.queryBuilder
 │       └── package.json
 │
 ├── docs/                       # Comprehensive guides
-│   ├── TAYLORDB_QUERY_REFERENCE.md
+│   ├── examples.md
 │   └── SHADCN_COMPONENTS_GUIDE.md
 │
 ├── AGENTS.md                   # AI agent instructions
@@ -68,12 +69,15 @@ This template includes comprehensive documentation for both human and AI develop
 
 ### For Developers
 
-- **[docs/TAYLORDB_QUERY_REFERENCE.md](./docs/TAYLORDB_QUERY_REFERENCE.md)**: Query builder reference
+- **[docs/examples.md](./docs/examples.md)**: Router examples and TaylorDB query-builder migration snippets
 
-  - All CRUD operations with examples
-  - Field type handling
-  - Advanced patterns (aggregations, pagination)
-  - Common pitfalls and solutions
+  - Why the template ships schema-agnostic demo routers
+  - How to replace demo stores with `ctx.queryBuilder` calls
+  - Current query-builder notes for `executeTakeFirst()`, `.returning()`, links, and attachments
+
+- **Package query-builder docs**: `apps/server/node_modules/@taylordb/query-builder/llm.txt`
+  - Official local entrypoint for current TaylorDB query-builder usage
+  - Links to field types, inserts, filters, pagination, relationships, file uploads, and current user docs
 
 - **[docs/SHADCN_COMPONENTS_GUIDE.md](./docs/SHADCN_COMPONENTS_GUIDE.md)**: UI component guide
   - Dashboard patterns
@@ -137,14 +141,16 @@ All components from shadcn/ui with:
 Type-safe queries with TaylorDB:
 
 ```typescript
-// Auto-generated types from your schema
-export async function getAllUsers() {
-  return await queryBuilder
+// In a tRPC procedure
+getAll: publicProcedure.query(({ ctx }) => {
+  return ctx.queryBuilder
     .selectFrom("users")
     .select(["id", "name", "email"])
     .execute();
-}
+})
 ```
+
+`ctx.queryBuilder` is created per request in `apps/server/trpc.ts` from the generated `TaylorDatabase` type in `apps/server/taylordb/types.ts`.
 
 ---
 
@@ -155,7 +161,7 @@ This template is optimized for AI-assisted development:
 1. **Read AGENTS.md**: Comprehensive instructions for AI agents
 2. **Follow the workflow**: Planning → Execution → Verification
 3. **Use type safety**: All examples use strict TypeScript
-4. **Reference docs**: Query patterns, component examples, best practices
+4. **Reference docs**: Query-builder package docs, router examples, component examples, best practices
 
 The AI agent will:
 
@@ -182,10 +188,12 @@ This template is designed to deploy to TaylorDB's platform using the included `t
 
 ### 1. Add a New Feature
 
-1. Create database functions in `apps/server/taylordb/query-builder.ts`
-2. Expose via tRPC in `apps/server/router.ts`
-3. Build UI in `apps/client/src/pages/`
-4. Add route in `apps/client/src/main.tsx`
+1. Confirm the table and fields exist in `apps/server/taylordb/types.ts`
+2. Add a domain router in `apps/server/routers/` that uses `ctx.queryBuilder`
+3. Export the router from `apps/server/routers/index.ts`
+4. Wire it into `apps/server/router.ts`
+5. Build UI in `apps/client/src/pages/`
+6. Add the client route in `apps/client/src/main.tsx`
 
 ### 2. Add shadcn/ui Component
 

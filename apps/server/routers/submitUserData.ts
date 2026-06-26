@@ -10,15 +10,17 @@ import { router, publicProcedure } from "../trpc";
  * TaylorDB attachment pattern:
  *   const cv = input.get("cv") as File | null;
  *   const profileImage = input.get("profileImage") as File | null;
- *   const attachments = await ctx.queryBuilder.uploadAttachments([
- *     { file: cv, name: cv.name },
- *     { file: profileImage, name: profileImage.name },
- *   ]);
+ *   const cvAttachments = cv
+ *     ? await ctx.queryBuilder.uploadAttachments([{ file: cv, name: cv.name }])
+ *     : [];
+ *   const profileImageAttachments = profileImage
+ *     ? await ctx.queryBuilder.uploadAttachments([{ file: profileImage, name: profileImage.name }])
+ *     : [];
  *   await ctx.queryBuilder.insertInto("users").values({
  *     name,
  *     email,
- *     cv: attachments[0],
- *     profileImage: attachments[1],
+ *     cv: cvAttachments,
+ *     profileImage: profileImageAttachments,
  *   }).execute();
  */
 
@@ -42,15 +44,17 @@ export const submitUserDataRouter = router({
       //
       // File objects are available directly — pass them to uploadAttachments:
       //
-      //   const attachments = await ctx.queryBuilder.uploadAttachments([
-      //     ...(cv ? [{ file: cv, name: cv.name }] : []),
-      //     ...(profileImage ? [{ file: profileImage, name: profileImage.name }] : []),
-      //   ]);
+      //   const cvAttachments = cv
+      //     ? await ctx.queryBuilder.uploadAttachments([{ file: cv, name: cv.name }])
+      //     : [];
+      //   const profileImageAttachments = profileImage
+      //     ? await ctx.queryBuilder.uploadAttachments([{ file: profileImage, name: profileImage.name }])
+      //     : [];
       //   await ctx.queryBuilder.insertInto("users").values({
       //     name,
       //     email,
-      //     cv: attachments[0],
-      //     profileImage: attachments[1],
+      //     cv: cvAttachments,
+      //     profileImage: profileImageAttachments,
       //   }).execute();
       // ──────────────────────────────────────────────────────────────────────
 

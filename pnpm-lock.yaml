@@ -8,15 +8,30 @@ importers:
 
   .:
     devDependencies:
+      '@eslint/js':
+        specifier: ^9.39.1
+        version: 9.39.1
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
       eslint:
         specifier: ^9.39.1
         version: 9.39.1(jiti@2.6.1)
+      eslint-plugin-react-hooks:
+        specifier: ^7.0.1
+        version: 7.0.1(eslint@9.39.1(jiti@2.6.1))
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.24
+        version: 0.4.24(eslint@9.39.1(jiti@2.6.1))
+      globals:
+        specifier: ^16.5.0
+        version: 16.5.0
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.46.3
+        version: 8.47.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
 
   apps/client:
     dependencies:
@@ -91,8 +106,8 @@ importers:
         specifier: ^4.1.18
         version: 4.1.18(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
       '@taylordb/query-builder':
-        specifier: ^0.18.3
-        version: 0.18.3
+        specifier: ^0.19.0
+        version: 0.19.0
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
@@ -139,8 +154,8 @@ importers:
   apps/server:
     dependencies:
       '@taylordb/query-builder':
-        specifier: ^0.18.3
-        version: 0.18.3
+        specifier: ^0.19.0
+        version: 0.19.0
       '@trpc/server':
         specifier: ^11.8.1
         version: 11.8.1(typescript@5.9.3)
@@ -1282,11 +1297,11 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
-  '@taylordb/query-builder@0.18.3':
-    resolution: {integrity: sha512-hRse9Sxy1sZdcmzPTfakVcGkVmL/fiw/ik6ZVfce8Am91c9m6LYQtHHUFPGRF5WZNrZG71+zNbhxgCCgyTlHMw==}
+  '@taylordb/query-builder@0.19.0':
+    resolution: {integrity: sha512-f6vrZ/8UrN6x1rLDQyP+lqqaf+iEEK4aIpZ9WKknTpapFfC0prTwLnNTQRZf2zytMnFdcMjDGrgRG2lpU5bIMg==}
 
-  '@taylordb/shared@0.18.3':
-    resolution: {integrity: sha512-F5alnPfIB3Bo0Y/OHFZCuaF7tl8EbL8BVTs4BLwsUkVhB5sqILYk6Lj696UCzOT3t8ofxmTspx8x4tgAiSgLfg==}
+  '@taylordb/shared@0.19.0':
+    resolution: {integrity: sha512-K5QmEer/x5+iy74yqKciwUDou754UZpISwlwkWYQFrgg6rsaiCE0KzX9syey0t59jLrhUm3Mwan6JWFbp1/6fg==}
 
   '@trpc/client@11.8.1':
     resolution: {integrity: sha512-L/SJFGanr9xGABmuDoeXR4xAdHJmsXsiF9OuH+apecJ+8sUITzVT1EPeqp0ebqA6lBhEl5pPfg3rngVhi/h60Q==}
@@ -3664,9 +3679,9 @@ snapshots:
       '@tanstack/query-core': 5.90.16
       react: 19.2.0
 
-  '@taylordb/query-builder@0.18.3':
+  '@taylordb/query-builder@0.19.0':
     dependencies:
-      '@taylordb/shared': 0.18.3
+      '@taylordb/shared': 0.19.0
       eventemitter3: 5.0.1
       fast-json-patch: 3.1.1
       json-to-graphql-query: 2.3.0
@@ -3678,7 +3693,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@taylordb/shared@0.18.3':
+  '@taylordb/shared@0.19.0':
     dependencies:
       lodash: 4.17.21
 

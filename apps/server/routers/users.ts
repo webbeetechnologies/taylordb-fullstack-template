@@ -53,7 +53,11 @@ export const usersRouter = router({
       return newUser;
 
       // TaylorDB:
-      // return await ctx.queryBuilder.insertInto("users").values(input).executeTakeFirst();
+      // return await ctx.queryBuilder
+      //   .insertInto("users")
+      //   .values(input)
+      //   .returning(["id", "name", "email", "createdAt"])
+      //   .executeTakeFirst();
     }),
 
   update: publicProcedure

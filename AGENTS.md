@@ -3,7 +3,7 @@
 ## Architecture Overview
 
 ```
-HTTP Request (with app_access_token cookie)
+HTTP Request (with app_access_token cookie or Authorization bearer fallback)
   ↓
 Express + tRPC (apps/server/index.ts, apps/server/trpc.ts)
   ↓
@@ -18,9 +18,10 @@ React Pages (apps/client/src/pages/) — consume via tRPC React Query hooks
 
 ## Critical Files — Read in This Order
 
-1. **[apps/server/taylordb/types.ts](apps/server/taylordb/types.ts)** — Database schema (tables, columns, types). Generated, never edit.
-2. **[apps/server/routers/](apps/server/routers/)** — tRPC procedures. Call `ctx.queryBuilder` here.
-3. **[apps/client/src/lib/trpc.ts](apps/client/src/lib/trpc.ts)** — tRPC client setup. Sends cookies with `credentials: "include"`.
+1. **[apps/server/taylordb/types.ts](apps/server/taylordb/types.ts)** — Generated `taylorSchema` runtime metadata and `TaylorDatabase` type. Never edit by hand.
+2. **[apps/server/trpc.ts](apps/server/trpc.ts)** — Creates the per-request `ctx.queryBuilder` using `createQueryBuilder<TaylorDatabase>()`.
+3. **[apps/server/routers/](apps/server/routers/)** — tRPC procedures. Call `ctx.queryBuilder` directly here.
+4. **[apps/client/src/lib/trpc.ts](apps/client/src/lib/trpc.ts)** — tRPC client setup. Sends cookies with `credentials: "include"`.
 
 Do NOT read `apps/server/taylordb/query-builder.ts` — it does not exist as a source file. The query builder is an npm package (`@taylordb/query-builder`).
 
@@ -37,10 +38,15 @@ Do NOT read `apps/server/taylordb/query-builder.ts` — it does not exist as a s
 
 **In `apps/server/trpc.ts`:**
 ```typescript
-const appAccessToken = req.cookies?.app_access_token;
+const appAccessToken =
+  req.cookies?.app_access_token ||
+  req.headers.authorization?.replace(/^Bearer\s+/i, "").trim();
+
 if (!appAccessToken) throw new Error("Unauthorized");
 // Use token to create per-request queryBuilder
 ```
+
+The Authorization header fallback supports environments where cookies are blocked in cross-origin iframes.
 
 **You do not add auth guards to individual procedures.** The context factory throws before any procedure runs, so all procedures are automatically protected.
 
@@ -48,7 +54,7 @@ if (!appAccessToken) throw new Error("Unauthorized");
 
 ## Context (ctx)
 
-Every tRPC request gets a fresh context containing `ctx.queryBuilder`. Use `ctx.queryBuilder` directly within your router procedures for all database reads, writes, and uploads.
+Every tRPC request gets a fresh context containing `ctx.queryBuilder`. Use `ctx.queryBuilder` directly within router procedures for database reads, writes, uploads, transactions, and `ctx.queryBuilder.auth.getUser()`.
 
 ---
 
@@ -56,9 +62,8 @@ Every tRPC request gets a fresh context containing `ctx.queryBuilder`. Use `ctx.
 
 | What | Where |
 |---|---|
-| Database read/write methods for one table | `apps/server/repositories/index.ts` — add function `createXRepository(qb)` |
-| Business logic, computed fields, cross-repo logic | `apps/server/services/index.ts` — add function `createXService(repos)` |
-| tRPC query/mutation endpoint | `apps/server/routers/[domain].ts` — import and use `ctx.repositories` or `ctx.services` |
+| Database read/write endpoint | `apps/server/routers/[domain].ts` — use `ctx.queryBuilder` directly |
+| Shared domain helper, if needed | Add a small module near the router, and pass `ctx.queryBuilder` into it |
 | Wire new router to app | `apps/server/router.ts` + `apps/server/routers/index.ts` |
 | React page (dashboard, form, etc.) | `apps/client/src/pages/[Name]Page.tsx` |
 | Reusable UI component | `apps/client/src/components/[name].tsx` |
@@ -70,63 +75,17 @@ Every tRPC request gets a fresh context containing `ctx.queryBuilder`. Use `ctx.
 
 ## Adding a New Domain (Step-by-Step)
 
-### 1. Add Repository Function
+### 1. Confirm the Table Exists
 
-**File:** `apps/server/repositories/index.ts`
-
-```typescript
-export function createProjectsRepository(qb: QB) {
-  return {
-    getAll: () =>
-      qb.selectFrom("projects").select(["id", "name", "status"]).execute(),
-    getById: (id: number) =>
-      qb.selectFrom("projects").where("id", "=", id).executeTakeFirst(),
-    create: (data: Partial<TableInserts<"projects">>) =>
-      qb.insertInto("projects").values(data).executeTakeFirst(),
-    update: (id: number, data: Partial<TableUpdates<"projects">>) =>
-      qb.update("projects").set(data).where("id", "=", id).execute(),
-    delete: (id: number) =>
-      qb.deleteFrom("projects").where("id", "=", id).execute(),
-  };
-}
-```
-
-Then add to `createRepositories`:
-```typescript
-export function createRepositories(qb: QB) {
-  return {
-    // ... existing
-    projects: createProjectsRepository(qb),
-  };
-}
-```
-
-### 2. (Optional) Add Service
-
-**File:** `apps/server/services/index.ts`
-
-If the domain needs computed logic or spans multiple tables:
+Check `apps/server/taylordb/types.ts` for the table and field names before writing queries. The generated file exports `taylorSchema` and:
 
 ```typescript
-export function createProjectsService(repos: Repositories) {
-  return {
-    getAll: () => repos.projects.getAll(),
-    // Add computed operations here
-  };
-}
+export type TaylorDatabase = InferTaylorDatabase<typeof taylorSchema>;
 ```
 
-Then add to `createServices`:
-```typescript
-export function createServices(repos: Repositories) {
-  return {
-    // ... existing
-    projects: createProjectsService(repos),
-  };
-}
-```
+Only query tables that exist in `TaylorDatabase`; otherwise TypeScript will fail the build.
 
-### 3. Create Router File
+### 2. Create Router File
 
 **File:** `apps/server/routers/projects.ts`
 
@@ -134,32 +93,49 @@ export function createServices(repos: Repositories) {
 import { z } from "zod";
 import { router, publicProcedure } from "../trpc";
 
+const projectIdInput = z.object({ id: z.number() });
+
 export const projectsRouter = router({
-  getAll: publicProcedure.query(({ ctx }) =>
-    ctx.repositories.projects.getAll()
-  ),
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.queryBuilder
+      .selectFrom("projects")
+      .select(["id", "name", "status"])
+      .orderBy("name", "asc")
+      .execute();
+  }),
 
   getById: publicProcedure
-    .input(z.object({ id: z.number() }))
-    .query(({ input, ctx }) =>
-      ctx.repositories.projects.getById(input.id)
-    ),
+    .input(projectIdInput)
+    .query(({ input, ctx }) => {
+      return ctx.queryBuilder
+        .selectFrom("projects")
+        .select(["id", "name", "status"])
+        .where("id", "=", input.id)
+        .executeTakeFirst(); // returns the record or null
+    }),
 
   create: publicProcedure
     .input(z.object({ name: z.string().min(1), status: z.string() }))
-    .mutation(({ input, ctx }) =>
-      ctx.repositories.projects.create(input)
-    ),
+    .mutation(({ input, ctx }) => {
+      return ctx.queryBuilder
+        .insertInto("projects")
+        .values(input)
+        .returning(["id", "name", "status"])
+        .executeTakeFirst(); // returns the inserted record or null
+    }),
 
   delete: publicProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(({ input, ctx }) =>
-      ctx.repositories.projects.delete(input.id)
-    ),
+    .input(projectIdInput)
+    .mutation(({ input, ctx }) => {
+      return ctx.queryBuilder
+        .deleteFrom("projects")
+        .where("id", "=", input.id)
+        .execute();
+    }),
 });
 ```
 
-### 4. Export from Router Index
+### 3. Export from Router Index
 
 **File:** `apps/server/routers/index.ts`
 
@@ -167,7 +143,7 @@ export const projectsRouter = router({
 export { projectsRouter } from "./projects";
 ```
 
-### 5. Wire to App Router
+### 4. Wire to App Router
 
 **File:** `apps/server/router.ts`
 
@@ -180,11 +156,23 @@ export const appRouter = router({
 });
 ```
 
+### Optional: Type Reusable Payloads
+
+When payloads cross function boundaries, use the helper types exported by `@taylordb/query-builder`:
+
+```typescript
+import type { Insertable, Updatable } from "@taylordb/query-builder";
+import type { TaylorDatabase } from "../taylordb/types";
+
+type ProjectInsert = Insertable<TaylorDatabase["projects"]>;
+type ProjectUpdate = Updatable<TaylorDatabase["projects"]>;
+```
+
 ---
 
 ## File Uploads (FormData + Multipart)
 
-File uploads are the **one exception** where `ctx.queryBuilder` is used directly:
+Attachment uploads are a two-step process: upload files, then write the returned `Attachment[]` to an attachment field.
 
 ```typescript
 upload: publicProcedure
@@ -199,8 +187,11 @@ upload: publicProcedure
         ])
       : [];
 
-    // After uploading, use repository for the insert
-    return ctx.repositories.users.create({ name, avatar: attachments });
+    return ctx.queryBuilder
+      .insertInto("users")
+      .values({ name, avatar: attachments })
+      .returning(["id", "name"])
+      .executeTakeFirst();
   }),
 ```
 
@@ -256,20 +247,29 @@ This file is the entrypoint to understanding the query builder. Always consult `
 
 **IMPORTANT:** Always check for an `llm.txt` file when interacting with ANY package starting with `@taylordb/`. All `@taylordb/` packages expose an `llm.txt` in their root which acts as the official documentation. You MUST read it before using the package.
 
+Key query-builder rules from the current package:
+
+- Use `Insertable<TaylorDatabase["table"]>` and `Updatable<TaylorDatabase["table"]>` for reusable insert/update payload types.
+- `insertInto().values()` returns `{ id: number }` by default; call `.returning([...])` when the caller needs more fields.
+- `executeTakeFirst()` returns the first record or `null`.
+- Attachment fields expect `Attachment[]` values from `ctx.queryBuilder.uploadAttachments()`.
+- Link fields accept `number[]` on insert, and `number[]` or `{ newIds, deletedIds }` on update.
+- Date equality filters can use named shorthands such as `"today"` or tuples such as `["exactDay", "YYYY-MM-DD"]`.
+
 ---
 
 ## Critical Rules
 
-1. **NEVER use in-memory data.** Always connect via `ctx.queryBuilder`.
+1. **NEVER add new production in-memory stores.** Use `ctx.queryBuilder`; the shipped demo routers are temporary schema-agnostic examples only.
 2. **NEVER edit `apps/server/taylordb/types.ts`.** It is auto-generated.
 3. **NEVER add per-procedure auth.** Auth is centralized in `createContext`.
 4. **NEVER start, stop, or manage the server process manually.** The application is strictly managed by a root `pm2` process. You are operating as an unprivileged `taylordb` user. If you need to restart the server, you MUST use the `dev-server-restart` tool. Do not run `npm start`, `pm2 restart`, `node index.js`, or similar commands.
 5. **ALWAYS run `pnpm build`** to verify TypeScript before declaring work done.
 6. **ALWAYS use `executeTakeFirst()`** for single-record queries, `execute()` for lists.
 7. **ALWAYS use `["exactDay", "YYYY-MM-DD"]`** format for date equality filters.
-8. **ALWAYS handle `undefined`** from `executeTakeFirst()` — it can return undefined.
+8. **ALWAYS handle `null`** from `executeTakeFirst()` — it can return null.
 9. **ALWAYS use shadcn/ui** for UI components, not hand-rolled HTML.
-10. **ALWAYS use `Partial<TableInserts<"table">>`** for type-safe insert/update parameters.
+10. **ALWAYS use `Insertable<TaylorDatabase["table"]>` / `Updatable<TaylorDatabase["table"]>`** for reusable insert/update parameters.
 
 ---
 
@@ -278,5 +278,5 @@ This file is the entrypoint to understanding the query builder. Always consult `
 - `pnpm build` passes with zero TypeScript errors
 - `pnpm lint` passes with zero errors
 - All tRPC procedures use `ctx.queryBuilder`
-- No in-memory data stores in routers
+- New database-backed features do not add in-memory stores
 - UI uses shadcn/ui components with proper loading/error states

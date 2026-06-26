@@ -8,9 +8,11 @@ import type { TaylorDatabase } from "./taylordb/types";
  * This is where you can add user session, database clients, etc.
  */
 export const createContext = ({ req, res }: CreateExpressContextOptions) => {
-  // Extract app_access_token from cookies
-  const appAccessToken = req.cookies?.app_access_token;
-  
+  // Bearer fallback: inject.js adds Authorization header when cookies are blocked in cross-origin iframes.
+  const appAccessToken =
+    req.cookies?.app_access_token ||
+    req.headers.authorization?.replace(/^Bearer\s+/i, "").trim();
+
   if (!appAccessToken) {
     throw new Error("Unauthorized: app_access_token cookie is required");
   }
